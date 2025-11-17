@@ -10,9 +10,22 @@
 		131145B62ECA424900130016 /* CameraAppSwiftUI.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CameraAppSwiftUI.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		131145CE2ECA530D00130016 /* Exceptions for "CameraAppSwiftUI" folder in "CameraAppSwiftUI" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 131145B52ECA424900130016 /* CameraAppSwiftUI */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		131145B82ECA424900130016 /* CameraAppSwiftUI */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				131145CE2ECA530D00130016 /* Exceptions for "CameraAppSwiftUI" folder in "CameraAppSwiftUI" target */,
+			);
 			path = CameraAppSwiftUI;
 			sourceTree = "<group>";
 		};
@@ -251,8 +264,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2W27Y46GZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CameraAppSwiftUI/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to take photos and videos.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access for video recording audio.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We save your photos to the library so you can access and edit them later.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -278,8 +296,13 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = N2W27Y46GZ;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = CameraAppSwiftUI/Info.plist;
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need camera access to take photos and videos.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need microphone access for video recording audio.";
+				INFOPLIST_KEY_NSPhotoLibraryAddUsageDescription = "We save your photos to the library so you can access and edit them later.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
