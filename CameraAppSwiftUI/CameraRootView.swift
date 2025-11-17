@@ -30,6 +30,14 @@ enum MeterMode: String, CaseIterable, Identifiable {
 // MARK: - Root camera view
 
 struct CameraRootView: View {
+    @AppStorage("isZenMode")
+    private var isZenMode: Bool = false
+
+    @State private var zenHUDExpanded: Bool = false   // tap to temporarily show full HUD
+
+    @AppStorage("isLeftHandedLayout")
+    private var isLeftHandedLayout: Bool = false
+    
     @StateObject private var controller = CameraController()
     @State private var mode: CaptureMode = .photo
     @State private var showLastCapture = false
@@ -48,60 +56,116 @@ struct CameraRootView: View {
         ZStack {
             previewLayer
 
-            // HUD overlays
+            // HUD overlays (top + bottom) with Zen logic
             VStack(spacing: 0) {
-                TopInfoBarView(controller: controller)
-
-                Spacer()
-
-                MinimalBottomControlsView(
-                    controller: controller,
-                    mode: $mode,
-                    showLastCapture: $showLastCapture,
-                    openProControls: { showProControlsSheet = true }
-                )
-            }
-
-            // Right-side quick actions (flash / timer / grid / lock)
-            VStack {
-                Spacer()
-                HStack {
-                    Spacer()
-                    QuickActionsView(controller: controller, mode: $mode)
-                        .padding(.bottom, 140)
-                        .padding(.trailing, 12)
+                // Top bar only when NOT in pure Zen
+                if !isZenMode || zenHUDExpanded {
+                    TopInfoBarView(controller: controller)
                 }
-            }
-            
-            // Audio meters on the right in Video mode
-            if mode == .video {
-                HStack {
-                    Spacer()
-                    AudioLevelMetersView(controller: controller)
-                        .padding(.trailing, 8)
-                        .padding(.bottom, 140)   // keep clear of bottom controls
-                }
-            }
 
-            // Small histogram/waveform HUD in lower-left corner
-            VStack {
                 Spacer()
-                HStack {
-                    SmallMonitoringHUD(
-                        mode: meterMode,
-                        bins: controller.histogramBins
+
+                if isZenMode && !zenHUDExpanded {
+                    // 🧘 Zen bottom bar: shutter + tiny readout + zoom
+                    ZenBottomBarView(
+                        controller: controller,
+                        mode: $mode
                     )
-                    .padding(.leading, 12)
-                    .padding(.bottom, 140)
+                } else {
+                    // Full bottom controls
+                    MinimalBottomControlsView(
+                        controller: controller,
+                        mode: $mode,
+                        showLastCapture: $showLastCapture,
+                        openProControls: { showProControlsSheet = true },
+                        isLeftHandedLayout: $isLeftHandedLayout
+                    )
+                }
+            }
 
+            // Side cluster: Quick actions + Audio meters (mirrored, but hidden in pure Zen)
+            if !isZenMode || zenHUDExpanded {
+                VStack {
                     Spacer()
+                    HStack {
+                        if isLeftHandedLayout {
+                            VStack(alignment: .leading, spacing: 12) {
+                                QuickActionsView(controller: controller, mode: $mode)
+
+                                if mode == .video {
+                                    AudioLevelMetersView(controller: controller)
+                                }
+                            }
+                            .padding(.leading, 12)
+                            .padding(.bottom, 140)
+
+                            Spacer()
+                        } else {
+                            Spacer()
+
+                            VStack(alignment: .trailing, spacing: 12) {
+                                QuickActionsView(controller: controller, mode: $mode)
+
+                                if mode == .video && meterMode == .audio {
+                                    AudioLevelMetersView(controller: controller)
+                                }
+                            }
+                            .padding(.trailing, 12)
+                            .padding(.bottom, 140)
+                        }
+                    }
+                }
+            }
+
+            // Small histogram/waveform HUD (also hidden in pure Zen)
+            if !isZenMode || zenHUDExpanded {
+                VStack {
+                    Spacer()
+                    HStack {
+                        if isLeftHandedLayout {
+                            Spacer()
+                            SmallMonitoringHUD(
+                                mode: meterMode,
+                                bins: controller.histogramBins
+                            )
+                            .padding(.trailing, 12)
+                            .padding(.bottom, 140)
+                        } else {
+                            SmallMonitoringHUD(
+                                mode: meterMode,
+                                bins: controller.histogramBins
+                            )
+                            .padding(.leading, 12)
+                            .padding(.bottom, 140)
+                            Spacer()
+                        }
+                    }
+                }
+            }
+        }
+        .contentShape(Rectangle())  // so taps register anywhere
+        .onTapGesture {
+            guard isZenMode else { return }
+            // Tap: toggle HUD expansion in Zen
+            withAnimation(.easeInOut(duration: 0.2)) {
+                zenHUDExpanded.toggle()
+            }
+            if zenHUDExpanded {
+                // Auto-collapse after a few seconds
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        zenHUDExpanded = false
+                    }
                 }
             }
         }
         .sheet(isPresented: $showProControlsSheet) {
             ProControlsSheet(
                 controller: controller,
-                meterMode: $meterMode
+                mode: $mode,
+                meterMode: $meterMode,
+                isLeftHandedLayout: $isLeftHandedLayout,
+                isZenMode: $isZenMode      // 👈 pass in Zen toggle
             )
         }
         .sheet(isPresented: $showLastCapture) {
@@ -125,14 +189,13 @@ struct CameraRootView: View {
             controller.applyWhiteBalanceSettings()
             controller.applyFocusSettings()
             controller.applyZoomSettings()
-
-            // 👇 add this
             controller.applyVideoConfiguration()
         }
         .onDisappear {
             controller.stopSession()
         }
     }
+
     
 
 
@@ -259,12 +322,24 @@ struct TopInfoBarView: View {
     }
 
     private var infoText: String {
-        let focal  = controller.focalLengthReadout()
+        let focal = controller.focalLengthReadout()
+
+        if controller.isRecording {
+            // Recording emphasis
+            return "\(focal) • REC \(controller.recordingDurationString())"
+        }
+
+        if controller.videoResolution != .res1080p { // or use a `mode` binding
+            // Video-style readout
+            let videoSummary = controller.videoStatusSummary() // "1080p • 30 fps • HEVC"
+            return "\(focal) • \(videoSummary)"
+        }
+
+        // Photo-style (existing)
         let format = controller.photoFormat.shortLabel
         let ss     = controller.shutterReadoutShort()
         let ev     = controller.evReadoutShort()
         let iso    = controller.isoReadoutShort()
-
         return "\(focal) • \(format) • \(ss) SS • \(ev) EV • \(iso) ISO"
     }
 }
@@ -391,6 +466,7 @@ struct MinimalBottomControlsView: View {
     @Binding var mode: CaptureMode
     @Binding var showLastCapture: Bool
     var openProControls: () -> Void
+    @Binding var isLeftHandedLayout: Bool
 
     var body: some View {
         VStack(spacing: 8) {
@@ -430,7 +506,7 @@ struct MinimalBottomControlsView: View {
 
             Spacer(minLength: 8)
 
-            // Photo / Video toggle (unchanged)
+            // Photo / Video toggle
             Picker("", selection: $mode) {
                 Text("Photo").tag(CaptureMode.photo)
                 Text("Video").tag(CaptureMode.video)
@@ -452,102 +528,135 @@ struct MinimalBottomControlsView: View {
         }
     }
 
-
     private var readoutLine: String {
-           if mode == .photo {
-               let ss  = controller.shutterReadoutShort()
-               let ev  = controller.evReadoutShort()
-               let iso = controller.isoReadoutShort()
-               return "\(ss) SS   \(ev) EV   \(iso) ISO"
-           } else {
-               // Video summary: 4K • 30 fps • HEVC
-               return controller.videoStatusSummary()
-           }
-       }
+        if mode == .photo {
+            let ss  = controller.shutterReadoutShort()
+            let ev  = controller.evReadoutShort()
+            let iso = controller.isoReadoutShort()
+            return "\(ss) SS   \(ev) EV   \(iso) ISO"
+        } else {
+            // Video summary: 4K • 30 fps • HEVC
+            return controller.videoStatusSummary()
+        }
+    }
+
+    // MARK: - Shutter row with left-handed support
 
     private var shutterRow: some View {
         HStack(spacing: 24) {
-            // Pro controls button
-            Button {
-                openProControls()
-            } label: {
-                Image(systemName: "slider.horizontal.3")
-                    .font(.system(size: 20, weight: .medium))
-                    .foregroundStyle(.white)
-                    .padding(10)
-                    .background(.black.opacity(0.5))
-                    .clipShape(Circle())
-            }
+            if isLeftHandedLayout {
+                // 🔹 LEFT-HANDED:
+                // [Shutter] --- [Pro] [Thumb]
+                shutterButton
 
-            Spacer()
+                Spacer()
 
-            // Shutter (photo / video)
-            Button {
-                switch mode {
-                case .photo:
-                    controller.triggerPhotoCapture()
-                case .video:
-                    if controller.isRecording {
-                        controller.stopRecording()
-                    } else {
-                        controller.startRecording()
-                    }
+                Button {
+                    openProControls()
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(.white)
+                        .padding(10)
+                        .background(.black.opacity(0.5))
+                        .clipShape(Circle())
                 }
-            } label: {
-                ZStack {
-                    Circle()
-                        .strokeBorder(.white.opacity(0.9), lineWidth: 4)
-                        .frame(width: 80, height: 80)
 
-                    if mode == .photo {
-                        Circle()
-                            .fill(.white)
-                            .frame(width: 64, height: 64)
-                    } else {
-                        if controller.isRecording {
-                            RoundedRectangle(cornerRadius: 6)
-                                .fill(.red)
-                                .frame(width: 32, height: 32)
-                        } else {
-                            RoundedRectangle(cornerRadius: 16)
-                                .fill(.red)
-                                .frame(width: 42, height: 42)
-                        }
-                    }
-                }
-            }
+                lastThumbnailButton
 
-            Spacer()
+            } else {
+                // 🔹 RIGHT-HANDED (original layout):
+                // [Pro] --- [Shutter] --- [Thumb]
+                Button {
+                    openProControls()
+                } label: {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(.white)
+                        .padding(10)
+                        .background(.black.opacity(0.5))
+                        .clipShape(Circle())
+                }
 
-            // Last thumbnail
-            Button {
-                if controller.lastCapturedImage != nil {
-                    showLastCapture = true
-                }
-            } label: {
-                Group {
-                    if let img = controller.lastCapturedImage {
-                        Image(uiImage: img)
-                            .resizable()
-                            .scaledToFill()
-                    } else {
-                        Image(systemName: "photo.on.rectangle")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundStyle(.white.opacity(0.8))
-                            .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    }
-                }
-                .frame(width: 52, height: 52)
-                .background(.black.opacity(0.5))
-                .clipShape(RoundedRectangle(cornerRadius: 10))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 10)
-                        .stroke(.white.opacity(0.4), lineWidth: 1)
-                )
+                Spacer()
+
+                shutterButton
+
+                Spacer()
+
+                lastThumbnailButton
             }
         }
     }
+
+    // MARK: - Small subviews for clarity
+
+    private var shutterButton: some View {
+        Button {
+            switch mode {
+            case .photo:
+                controller.triggerPhotoCapture()
+            case .video:
+                if controller.isRecording {
+                    controller.stopRecording()
+                } else {
+                    controller.startRecording()
+                }
+            }
+        } label: {
+            ZStack {
+                Circle()
+                    .strokeBorder(.white.opacity(0.9), lineWidth: 4)
+                    .frame(width: 80, height: 80)
+
+                if mode == .photo {
+                    Circle()
+                        .fill(.white)
+                        .frame(width: 64, height: 64)
+                } else {
+                    if controller.isRecording {
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(.red)
+                            .frame(width: 32, height: 32)
+                    } else {
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(.red)
+                            .frame(width: 42, height: 42)
+                    }
+                }
+            }
+        }
+    }
+
+    private var lastThumbnailButton: some View {
+        Button {
+            if controller.lastCapturedImage != nil {
+                showLastCapture = true
+            }
+        } label: {
+            Group {
+                if let img = controller.lastCapturedImage {
+                    Image(uiImage: img)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Image(systemName: "photo.on.rectangle")
+                        .font(.system(size: 20, weight: .medium))
+                        .foregroundStyle(.white.opacity(0.8))
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+            }
+            .frame(width: 52, height: 52)
+            .background(.black.opacity(0.5))
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(.white.opacity(0.4), lineWidth: 1)
+            )
+        }
+    }
 }
+
 
 // MARK: - Zoom control bar
 
@@ -625,26 +734,61 @@ struct SmallMonitoringHUD: View {
     var body: some View {
         MonitoringHUDView(mode: mode, bins: bins)
             .frame(width: 140, height: 60)
+            .allowsHitTesting(false)   // 👈 add this
     }
 }
 
 // MARK: - Pro Controls Sheet (all “deep” controls live here)
 
 struct ProControlsSheet: View {
+    
     @ObservedObject var controller: CameraController
+    @Binding var mode: CaptureMode
     @Binding var meterMode: MeterMode
+    @Binding var isLeftHandedLayout: Bool    // 👈 new
+    @Binding var isZenMode: Bool     // 👈 NEW
+    
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    WhiteBalanceSection(controller: controller)
                     ExposureSection(controller: controller)
                     FocusSection(controller: controller)
-                    WhiteBalanceSection(controller: controller)
                     FormatSection(controller: controller)
                     VideoSection(controller: controller)               // 👈 NEW
                     MonitoringSection(controller: controller, meterMode: $meterMode)
+                    Section {
+                        Toggle(isOn: $isLeftHandedLayout) {
+                            Text("Left-handed layout")
+                                .font(.subheadline)
+                                .foregroundStyle(.white)
+                        }
+                    } header: {
+                        Text("Layout")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+                    
+                    Section {
+                        Toggle(isOn: $isZenMode) {
+                            Text("Zen Mode (Clean HUD)")
+                                .font(.subheadline)
+                                .foregroundStyle(.white)
+                        }
+                        Text("Hide all controls except shutter, readout, and zoom. Tap the screen to temporarily show the full HUD.")
+                            .font(.caption2)
+                            .foregroundStyle(.white.opacity(0.7))
+                            .fixedSize(horizontal: false, vertical: true)
+                    } header: {
+                        Text("HUD")
+                            .font(.caption)
+                            .foregroundStyle(.white.opacity(0.7))
+                    }
+
+
                 }
                 .padding()
             }
@@ -1420,5 +1564,77 @@ struct AudioMeterBar: View {
     private var formattedDB: String {
         let value = Int(db.rounded())
         return "\(value) dB"
+    }
+}
+
+struct ZenBottomBarView: View {
+    @ObservedObject var controller: CameraController
+    @Binding var mode: CaptureMode
+
+    var body: some View {
+        VStack(spacing: 8) {
+            // Tiny exposure / video readout
+            Text(readoutLine)
+                .font(.caption2.monospacedDigit())
+                .foregroundStyle(.white.opacity(0.9))
+
+            // Same zoom bar as full mode
+            ZoomControlBar(controller: controller)
+
+            // Big shutter, centered
+            Button {
+                switch mode {
+                case .photo:
+                    controller.triggerPhotoCapture()
+                case .video:
+                    if controller.isRecording {
+                        controller.stopRecording()
+                    } else {
+                        controller.startRecording()
+                    }
+                }
+            } label: {
+                ZStack {
+                    Circle()
+                        .strokeBorder(.white.opacity(0.9), lineWidth: 4)
+                        .frame(width: 80, height: 80)
+
+                    if mode == .photo {
+                        Circle()
+                            .fill(.white)
+                            .frame(width: 64, height: 64)
+                    } else {
+                        if controller.isRecording {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(.red)
+                                .frame(width: 32, height: 32)
+                        } else {
+                            RoundedRectangle(cornerRadius: 16)
+                                .fill(.red)
+                                .frame(width: 42, height: 42)
+                        }
+                    }
+                }
+            }
+        }
+        .padding(.horizontal)
+        .padding(.bottom, 16)
+        .background(
+            Color.black.opacity(0.25)
+                .blur(radius: 20)
+                .ignoresSafeArea(edges: .bottom)
+        )
+    }
+
+    private var readoutLine: String {
+        if mode == .photo {
+            let ss  = controller.shutterReadoutShort()
+            let ev  = controller.evReadoutShort()
+            let iso = controller.isoReadoutShort()
+            return "\(ss)  •  \(ev) EV  •  ISO \(iso)"
+        } else {
+            // Reuse your video summary
+            return controller.videoStatusSummary()
+        }
     }
 }

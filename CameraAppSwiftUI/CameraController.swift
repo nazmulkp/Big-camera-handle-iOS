@@ -1820,44 +1820,6 @@ extension CameraController {
                     )
                 }
                 
-                if let connection = strongSelf.movieOutput.connection(with: .video) {
-                    // Stabilization
-                    if connection.isVideoStabilizationSupported {
-                        connection.preferredVideoStabilizationMode =
-                        strongSelf.videoStabilizationEnabled ? .cinematic : .off
-                    }
-                    
-                    // Codec (H.264 / HEVC) – best effort
-                    if #available(iOS 11.0, *) {
-                        let available = strongSelf.movieOutput.availableVideoCodecTypes
-                        
-                        let desiredCodec: AVVideoCodecType = {
-                            switch strongSelf.videoCodec {
-                            case .h264: return .h264
-                            case .hevc: return .hevc
-                            }
-                        }()
-                        
-                        let codecToUse: AVVideoCodecType
-                        if available.contains(desiredCodec) {
-                            codecToUse = desiredCodec
-                        } else if available.contains(.hevc) {
-                            codecToUse = .hevc
-                        } else if available.contains(.h264) {
-                            codecToUse = .h264
-                        } else if let first = available.first {
-                            codecToUse = first
-                        } else {
-                            codecToUse = .h264
-                        }
-                        
-                        strongSelf.movieOutput.setOutputSettings(
-                            [AVVideoCodecKey: codecToUse],
-                            for: connection
-                        )
-                    }
-                }
-                
                 strongSelf.session.commitConfiguration()
               }
             })
