@@ -214,6 +214,8 @@ enum FocusControlMode: String, CaseIterable, Identifiable {
 @MainActor
 final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     
+    
+
     // MARK: - Audio monitoring
 
     private let audioDataOutput = AVCaptureAudioDataOutput()
@@ -221,6 +223,22 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
     @Published var audioLevelLeft: CGFloat  = 0.0   // 0...1
     @Published var audioLevelRight: CGFloat = 0.0   // 0...1
+
+    @Published var audioPeakLeft: CGFloat   = 0.0   // 0...1
+    @Published var audioPeakRight: CGFloat  = 0.0   // 0...1
+
+    @Published var audioDBLeft: CGFloat     = -60.0 // dB (peak)
+    @Published var audioDBRight: CGFloat    = -60.0
+
+    // NEW
+    @Published var audioGainDB: CGFloat     = 0.0   // -24...+24 dB (software gain for monitoring)
+    @Published var isAudioMuted: Bool       = false
+
+
+    private var lastPeakUpdateLeft: Date?
+    private var lastPeakUpdateRight: Date?
+
+
 
     
     // Video HUD
@@ -537,7 +555,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
         dataPointer.withMemoryRebound(to: Int16.self, capacity: sampleCount) { ptr in
             for i in 0..<maxSamples {
-                let s = Float(ptr[i]) / Float(Int16.max)
+                let s = Float(ptr[i]) / Float(Int16.max)  // -1...1
                 let a = abs(s)
                 sum += a * a
                 if a > peak { peak = a }
@@ -547,13 +565,101 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
         let rms = sqrt(sum / Float(maxSamples))
         guard rms > 0 else { return }
 
-        let db = 20 * log10(rms)
-        let normalized = max(0, min(1, (db + 60) / 60))
+        let db = 20 * log10(rms)          // negative
+        let normalized = max(0, min(1, (db + 60) / 60))   // map -60...0 dB → 0...1
 
         DispatchQueue.main.async { [weak self] in
             guard let self else { return }
-            self.audioLevelLeft  = CGFloat(normalized)
-            self.audioLevelRight = CGFloat(normalized)
+
+            let now = Date()
+            let holdTime: TimeInterval = 0.6
+            let fallRate: CGFloat = 0.03
+
+            // Base level (RMS-based 0...1)
+            var level = CGFloat(normalized)
+
+            // Software gain (for monitoring)
+            let gainLinear = pow(10.0, Double(self.audioGainDB) / 20.0)
+            level = max(0, min(1, level * CGFloat(gainLinear)))
+
+            // If muted, force levels to zero
+            if self.isAudioMuted {
+                level = 0
+            }
+
+            // Apply to meters (mono mirrored)
+            self.audioLevelLeft  = level
+            self.audioLevelRight = level
+
+            // Peak dB for UI (based on actual peak * gain)
+            let adjustedPeak = max(peak * Float(gainLinear), 0.000_001)
+            let peakDb = 20 * log10(adjustedPeak)
+            let clampedPeakDB = max(-60, min(0, peakDb))
+
+            if self.isAudioMuted {
+                self.audioDBLeft  = -60
+                self.audioDBRight = -60
+            } else {
+                self.audioDBLeft  = CGFloat(clampedPeakDB)
+                self.audioDBRight = CGFloat(clampedPeakDB)
+            }
+
+            // ---- Peak Left (hold + fall) ----
+            let currentPeakL = self.audioPeakLeft
+            let timeSinceL = self.lastPeakUpdateLeft.map { now.timeIntervalSince($0) }
+                ?? .greatestFiniteMagnitude
+
+            var newPeakL = currentPeakL
+
+            if self.isAudioMuted {
+                // When muted, let peak fall
+                newPeakL = max(0, currentPeakL - fallRate)
+            } else if level >= currentPeakL || timeSinceL > holdTime {
+                newPeakL = level
+                self.lastPeakUpdateLeft = now
+            } else {
+                newPeakL = max(0, currentPeakL - fallRate)
+            }
+
+            self.audioPeakLeft = newPeakL
+
+            // ---- Peak Right (same logic) ----
+            let currentPeakR = self.audioPeakRight
+            let timeSinceR = self.lastPeakUpdateRight.map { now.timeIntervalSince($0) }
+                ?? .greatestFiniteMagnitude
+
+            var newPeakR = currentPeakR
+
+            if self.isAudioMuted {
+                newPeakR = max(0, currentPeakR - fallRate)
+            } else if level >= currentPeakR || timeSinceR > holdTime {
+                newPeakR = level
+                self.lastPeakUpdateRight = now
+            } else {
+                newPeakR = max(0, currentPeakR - fallRate)
+            }
+
+            self.audioPeakRight = newPeakR
+        }
+
+    }
+
+    func setAudioMuted(_ muted: Bool) {
+        isAudioMuted = muted
+        applyAudioMuteSettings()
+    }
+
+
+    func applyAudioMuteSettings() {
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            self.session.beginConfiguration()
+
+            if let audioConnection = self.movieOutput.connection(with: .audio) {
+                audioConnection.isEnabled = !self.isAudioMuted
+            }
+
+            self.session.commitConfiguration()
         }
     }
 

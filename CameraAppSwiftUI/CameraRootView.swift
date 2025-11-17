@@ -11,6 +11,8 @@ enum CaptureMode {
 enum MeterMode: String, CaseIterable, Identifiable {
     case histogram
     case waveform
+    case audio        // NEW for audio meters
+    case off          // NEW if user wants clean screen
 
     var id: String { rawValue }
 
@@ -18,9 +20,12 @@ enum MeterMode: String, CaseIterable, Identifiable {
         switch self {
         case .histogram: return "Histogram"
         case .waveform:  return "Waveform"
+        case .audio:     return "Audio"
+        case .off:       return "Off"
         }
     }
 }
+
 
 // MARK: - Root camera view
 
@@ -962,27 +967,57 @@ struct FormatSection: View {
 
 struct MonitoringSection: View {
     @ObservedObject var controller: CameraController
-    @Binding var meterMode: MeterMode
+    @Binding var meterMode: MeterMode   // you already have this
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             SectionHeader(title: "Monitoring")
 
-            Picker("Monitoring Mode", selection: $meterMode) {
-                ForEach(MeterMode.allCases) { mode in
-                    Text(mode.label).tag(mode)
-                }
+            // Meter mode picker (Histogram / Waveform / Off)
+            Picker("Meters", selection: $meterMode) {
+                Text("Histogram").tag(MeterMode.histogram)
+                Text("Waveform").tag(MeterMode.waveform)
+                Text("Audio").tag(MeterMode.audio)
+                Text("Off").tag(MeterMode.off)
             }
             .pickerStyle(.segmented)
 
-            MonitoringHUDView(
-                mode: meterMode,
-                bins: controller.histogramBins
-            )
-            .frame(height: 60)
+
+            // Audio Gain + Mute
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Audio Gain")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.8))
+                    Spacer()
+                    Text("\(Int(controller.audioGainDB.rounded())) dB")
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+
+                Slider(
+                    value: Binding(
+                        get: { Double(controller.audioGainDB) },
+                        set: { controller.audioGainDB = CGFloat($0) }
+                    ),
+                    in: -24...24,
+                    step: 1
+                )
+
+                Toggle(isOn: Binding(
+                    get: { controller.isAudioMuted },
+                    set: { controller.setAudioMuted($0) }
+                )) {
+                    Text("Mute")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.9))
+                }
+                .toggleStyle(.switch)
+            }
         }
     }
 }
+
 
 // MARK: - Focus Reticle & Peaking
 
@@ -1047,12 +1082,15 @@ struct MonitoringHUDView: View {
 
     var body: some View {
         ZStack {
-            RoundedRectangle(cornerRadius: 8)
-                .fill(Color.black.opacity(0.5))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 8)
-                        .stroke(Color.white.opacity(0.2), lineWidth: 1)
-                )
+            // Only show the HUD background for histogram / waveform
+            if mode == .histogram || mode == .waveform {
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(Color.black.opacity(0.5))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 8)
+                            .stroke(Color.white.opacity(0.2), lineWidth: 1)
+                    )
+            }
 
             switch mode {
             case .histogram:
@@ -1064,10 +1102,16 @@ struct MonitoringHUDView: View {
                 WaveformView(bins: bins)
                     .padding(.horizontal, 4)
                     .padding(.vertical, 6)
+
+            case .audio, .off:
+                // No overlay here – audio meters are handled separately,
+                // and "off" means no visual monitoring HUD.
+                EmptyView()
             }
         }
     }
 }
+
 
 struct HistogramView: View {
     let bins: [CGFloat]
@@ -1288,8 +1332,18 @@ struct AudioLevelMetersView: View {
 
     var body: some View {
         VStack(spacing: 6) {
-            AudioMeterBar(level: controller.audioLevelLeft, label: "L")
-            AudioMeterBar(level: controller.audioLevelRight, label: "R")
+            AudioMeterBar(
+                level: controller.audioLevelLeft,
+                peakLevel: controller.audioPeakLeft,
+                db: controller.audioDBLeft,
+                label: "L"
+            )
+            AudioMeterBar(
+                level: controller.audioLevelRight,
+                peakLevel: controller.audioPeakRight,
+                db: controller.audioDBRight,
+                label: "R"
+            )
         }
         .padding(6)
         .background(Color.black.opacity(0.4))
@@ -1297,32 +1351,74 @@ struct AudioLevelMetersView: View {
     }
 }
 
+
 struct AudioMeterBar: View {
-    let level: CGFloat   // 0...1
+    let level: CGFloat    // 0...1 (RMS-based bar)
+    let peakLevel: CGFloat // 0...1 (visual peak position)
+    let db: CGFloat       // peak dB, approx -60...0
     let label: String
 
+    private let barHeight: CGFloat = 60
+
     var body: some View {
-        VStack(alignment: .center, spacing: 4) {
+        VStack(alignment: .center, spacing: 2) {
             ZStack(alignment: .bottom) {
+                // Background
                 RoundedRectangle(cornerRadius: 3)
                     .fill(Color.white.opacity(0.15))
-                    .frame(width: 8, height: 60)
+                    .frame(width: 8, height: barHeight)
 
+                // Active level bar
                 RoundedRectangle(cornerRadius: 3)
-                    .fill(LinearGradient(
-                        colors: [Color.green, Color.yellow, Color.red],
-                        startPoint: .bottom,
-                        endPoint: .top
-                    ))
-                    .frame(width: 8, height: max(2, 60 * level))
+                    .fill(
+                        LinearGradient(
+                            colors: [Color.green, Color.yellow, Color.red],
+                            startPoint: .bottom,
+                            endPoint: .top
+                        )
+                    )
+                    .frame(width: 8, height: max(2, barHeight * level))
                     .animation(.linear(duration: 0.08), value: level)
+
+                // Peak hold line
+                RoundedRectangle(cornerRadius: 1)
+                    .fill(peakColor)
+                    .frame(width: 12, height: 2)
+                    .offset(y: -barHeight * peakLevel)
+                    .animation(.linear(duration: 0.08), value: peakLevel)
             }
 
-            Text(label)
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.8))
+            // Label + dB readout + clip dot
+            HStack(spacing: 4) {
+                Text(label)
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.85))
+
+                Text(formattedDB)
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.85))
+
+                if isClipping {
+                    Circle()
+                        .fill(Color.red)
+                        .frame(width: 6, height: 6)
+                }
+            }
         }
     }
+
+    private var peakColor: Color {
+        // Peak line turns red if level is very high
+        peakLevel > 0.9 ? .red : .white.opacity(0.9)
+    }
+
+    private var isClipping: Bool {
+        // Use peak dB for clipping detection
+        db >= -1.0
+    }
+
+    private var formattedDB: String {
+        let value = Int(db.rounded())
+        return "\(value) dB"
+    }
 }
-
-
