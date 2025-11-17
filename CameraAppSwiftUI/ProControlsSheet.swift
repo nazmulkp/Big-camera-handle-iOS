@@ -348,7 +348,7 @@ struct FormatSection: View {
                                     .font(.caption2)
                             }
                         }
-                        .font(.system(size: 14, weight: .medium))
+                        .font(.system(size: 11, weight: .medium))
                         .padding(.vertical, 8)
                         .frame(maxWidth: .infinity)
                         .background(

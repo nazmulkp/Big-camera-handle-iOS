@@ -358,151 +358,108 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     }
 
     // MARK: - Session configuration
-
     private func configureSession() {
         sessionQueue.async { [weak self] in
             guard let self else { return }
 
-            self.session.beginConfiguration()
-            self.session.sessionPreset = .high   // good default for photo + 1080p video
+            do {
+                self.session.beginConfiguration()
+                defer { self.session.commitConfiguration() }
+                
+                self.session.sessionPreset = .high
 
-            // Remove existing inputs
-            self.session.inputs.forEach { self.session.removeInput($0) }
+                // Remove existing inputs
+                self.session.inputs.forEach { self.session.removeInput($0) }
 
-            // Video input – back wide camera
-            guard
-                let device = AVCaptureDevice.default(
+                // Video input with fallback
+                guard let device = AVCaptureDevice.default(
                     .builtInWideAngleCamera,
                     for: .video,
                     position: .back
-                )
-            else {
-                print("❌ No back camera found")
-                self.session.commitConfiguration()
-                return
-            }
-
-            do {
-                let input = try AVCaptureDeviceInput(device: device)
-                if self.session.canAddInput(input) {
-                    self.session.addInput(input)
-                    self.videoDeviceInput = input
-                } else {
-                    print("❌ Cannot add camera input")
+                ) else {
+                    throw NSError(domain: "CameraController", code: 1, userInfo: [NSLocalizedDescriptionKey: "No camera found"])
                 }
-            } catch {
-                print("❌ Error creating camera input: \(error)")
-            }
 
-            // Audio input for video recording
-            if let audioDevice = AVCaptureDevice.default(for: .audio) {
-                do {
+                let input = try AVCaptureDeviceInput(device: device)
+                guard self.session.canAddInput(input) else {
+                    throw NSError(domain: "CameraController", code: 2, userInfo: [NSLocalizedDescriptionKey: "Cannot add camera input"])
+                }
+                self.session.addInput(input)
+                self.videoDeviceInput = input
+
+                // Audio input
+                if let audioDevice = AVCaptureDevice.default(for: .audio) {
                     let audioInput = try AVCaptureDeviceInput(device: audioDevice)
                     if self.session.canAddInput(audioInput) {
                         self.session.addInput(audioInput)
-                    } else {
-                        print("❌ Cannot add audio input")
                     }
-                } catch {
-                    print("❌ Error creating audio input: \(error)")
                 }
-            }
 
-            // Photo output
-            if self.session.canAddOutput(self.photoOutput) {
+                // Photo output
+                guard self.session.canAddOutput(self.photoOutput) else {
+                    throw NSError(domain: "CameraController", code: 3, userInfo: [NSLocalizedDescriptionKey: "Cannot add photo output"])
+                }
                 self.photoOutput.isHighResolutionCaptureEnabled = true
                 self.session.addOutput(self.photoOutput)
-            } else {
-                print("❌ Cannot add photo output")
-            }
 
-            // Video output for histogram / waveform
-            if self.session.canAddOutput(self.videoDataOutput) {
-                self.videoDataOutput.alwaysDiscardsLateVideoFrames = true
-                self.videoDataOutput.videoSettings = [
-                    kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
-                ]
-                self.videoDataOutput.setSampleBufferDelegate(self, queue: self.videoDataQueue)
-                self.session.addOutput(self.videoDataOutput)
-            } else {
-                print("❌ Cannot add video data output")
-            }
+                // Video data output for histogram
+                if self.session.canAddOutput(self.videoDataOutput) {
+                    self.videoDataOutput.alwaysDiscardsLateVideoFrames = true
+                    self.videoDataOutput.videoSettings = [
+                        kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA
+                    ]
+                    self.videoDataOutput.setSampleBufferDelegate(self, queue: self.videoDataQueue)
+                    self.session.addOutput(self.videoDataOutput)
+                }
 
-            // Movie output for video recording
-            if self.session.canAddOutput(self.movieOutput) {
-                self.session.addOutput(self.movieOutput)
-            } else {
-                print("❌ Cannot add movie output")
-            }
+                // Movie output
+                if self.session.canAddOutput(self.movieOutput) {
+                    self.session.addOutput(self.movieOutput)
+                }
 
-            // Exposure & zoom ranges from active format
-            if let dev = self.videoDeviceInput?.device {
-                let format = dev.activeFormat
-                self.minISO = format.minISO
-                self.maxISO = format.maxISO
+                // Audio data output
+                if self.session.canAddOutput(self.audioDataOutput) {
+                    self.audioDataOutput.setSampleBufferDelegate(self, queue: self.audioDataQueue)
+                    self.session.addOutput(self.audioDataOutput)
+                }
 
-                let minDur = CMTimeGetSeconds(format.minExposureDuration)
-                let maxDur = CMTimeGetSeconds(format.maxExposureDuration)
+                // Configure device ranges
+                try self.configureDeviceRanges()
 
-                self.minExposureDuration = max(minDur, 1.0 / 100000.0)
-                self.maxExposureDuration = max(maxDur, self.minExposureDuration * 10)
-
-                // Zoom range
-                self.minZoomFactor = dev.minAvailableVideoZoomFactor
-                self.maxZoomFactor = min(dev.maxAvailableVideoZoomFactor, 6.0)
-
-                print("📷 ISO range: \(self.minISO) – \(self.maxISO)")
-                print("📷 Shutter range: \(self.minExposureDuration)s – \(self.maxExposureDuration)s")
-                print("📷 Zoom range: \(self.minZoomFactor)x – \(self.maxZoomFactor)x")
-
-                let initialZoom = self.minZoomFactor
-
-                Task { @MainActor in
-                    self.zoomFactor = initialZoom
-                    self.zoomSliderValue = self.sliderValue(forZoom: initialZoom)
+            } catch {
+                print("❌ Session configuration failed: \(error)")
+                DispatchQueue.main.async {
+                    self.isSessionRunning = false
                 }
             }
-
-            // Capabilities: HEIF / RAW / ProRAW-ish
-            let heifSupported = self.photoOutput.availablePhotoCodecTypes.contains(.hevc)
-            let hasRaw = !self.photoOutput.availableRawPhotoPixelFormatTypes.isEmpty
-
-            var proRawSupported = false
-            if #available(iOS 14.3, *) {
-                if self.photoOutput.isAppleProRAWSupported {
-                    let types = self.photoOutput.availableRawPhotoPixelFormatTypes
-                    proRawSupported = types.contains {
-                        AVCapturePhotoOutput.isAppleProRAWPixelFormat($0)
-                    }
-                }
-            }
-
-            Task { @MainActor in
-                self.supportsHEIF = heifSupported
-                self.supportsRAW = hasRaw
-                self.supportsProRAW = proRawSupported
-
-                if !heifSupported && self.photoFormat == .heif {
-                    self.photoFormat = .jpeg
-                }
-                if !hasRaw && (self.photoFormat == .raw || self.photoFormat == .proRAW) {
-                    self.photoFormat = heifSupported ? .heif : .jpeg
-                }
-            }
-            
-            // Audio data output for level meters
-            if self.session.canAddOutput(self.audioDataOutput) {
-                self.audioDataOutput.setSampleBufferDelegate(self, queue: self.audioDataQueue)
-                self.session.addOutput(self.audioDataOutput)
-            } else {
-                print("❌ Cannot add audio data output")
-            }
-
-
-            self.session.commitConfiguration()
         }
     }
-   // MARK: - Session control
+
+    private func configureDeviceRanges() throws {
+        guard let device = self.videoDeviceInput?.device else { return }
+        
+        let format = device.activeFormat
+        self.minISO = format.minISO
+        self.maxISO = format.maxISO
+
+        let minDur = CMTimeGetSeconds(format.minExposureDuration)
+        let maxDur = CMTimeGetSeconds(format.maxExposureDuration)
+
+        self.minExposureDuration = max(minDur, 1.0 / 100000.0)
+        self.maxExposureDuration = max(maxDur, self.minExposureDuration * 10)
+
+        // Zoom range
+        self.minZoomFactor = device.minAvailableVideoZoomFactor
+        self.maxZoomFactor = min(device.maxAvailableVideoZoomFactor, 6.0)
+
+        let initialZoom = self.minZoomFactor
+
+        DispatchQueue.main.async { [weak self] in
+            self?.zoomFactor = initialZoom
+            self?.zoomSliderValue = self?.sliderValue(forZoom: initialZoom) ?? 0.0
+        }
+    }
+    // MARK: - Session control
 
     func startSession() {
         sessionQueue.async { [weak self] in
@@ -876,16 +833,40 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
         sessionQueue.async { [weak self] in
             guard let self else { return }
             guard !self.movieOutput.isRecording else { return }
-
+            
+            // Check disk space
+            if !self.hasSufficientDiskSpace() {
+                DispatchQueue.main.async {
+                    // Show error to user
+                    print("❌ Insufficient disk space for recording")
+                }
+                return
+            }
+            
             let tempURL = FileManager.default
                 .temporaryDirectory
                 .appendingPathComponent("clip-\(UUID().uuidString).mov")
 
-            self.movieOutput.startRecording(to: tempURL, recordingDelegate: self)
+            // Ensure the directory exists
+            do {
+                try FileManager.default.createDirectory(
+                    at: tempURL.deletingLastPathComponent(),
+                    withIntermediateDirectories: true
+                )
+            } catch {
+                print("❌ Failed to create temp directory: \(error)")
+                return
+            }
             
-            // After starting movie output
-            startRecordingTimer()
+            self.movieOutput.startRecording(to: tempURL, recordingDelegate: self)
+            self.startRecordingTimer()
         }
+    }
+
+    private func hasSufficientDiskSpace() -> Bool {
+        let fileSystemAttributes = try? FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
+        let freeSpace = (fileSystemAttributes?[.systemFreeSize] as? NSNumber)?.int64Value ?? 0
+        return freeSpace > 500_000_000 // 500MB minimum
     }
 
     func stopRecording() {
@@ -1550,6 +1531,8 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
             }
         }
     }
+    
+    
 }
 
 
@@ -1733,98 +1716,73 @@ extension CameraController {
     }
 
     func applyVideoConfiguration() {
-        sessionQueue.async(execute: { [weak self] in
-            guard let strongSelf = self,
-                  let device = strongSelf.videoDeviceInput?.device else { return }
+        sessionQueue.async { [weak self] in
+            guard let self, let device = self.videoDeviceInput?.device else { return }
             
-            strongSelf.session.beginConfiguration()
-            
-            // 1) Resolution via sessionPreset
-            let targetPreset: AVCaptureSession.Preset
-            switch strongSelf.videoResolution {
-            case .res720p:
-                targetPreset = .hd1280x720
-            case .res1080p:
-                targetPreset = .hd1920x1080
-            case .res4k:
-                if strongSelf.session.canSetSessionPreset(.hd4K3840x2160) {
-                    targetPreset = .hd4K3840x2160
-                } else {
-                    targetPreset = .hd1920x1080
-                }
-            }
-            
-            if strongSelf.session.canSetSessionPreset(targetPreset) {
-                strongSelf.session.sessionPreset = targetPreset
-            }
-            
-            // 2) Frame rate (fps) – best effort on activeFormat
-            let desiredFPS = strongSelf.videoFrameRate.rawValue
-            let ranges = device.activeFormat.videoSupportedFrameRateRanges
-            if let range = ranges.first(where: {
-                Double(desiredFPS) >= $0.minFrameRate && Double(desiredFPS) <= $0.maxFrameRate
-            }) {
-                do {
-                    try device.lockForConfiguration()
-                    device.activeVideoMinFrameDuration = CMTime(
-                        value: 1,
-                        timescale: CMTimeScale(desiredFPS)
-                    )
-                    device.activeVideoMaxFrameDuration = CMTime(
-                        value: 1,
-                        timescale: CMTimeScale(desiredFPS)
-                    )
-                    device.unlockForConfiguration()
-                } catch {
-                    print("❌ Failed to set frame rate: \(error)")
-                }
-            } else {
-                print("⚠️ Desired FPS \(desiredFPS) not supported on this format")
-            }
-            
-            // 3) Stabilization, codec, color space on movieOutput connection
-            if let connection = strongSelf.movieOutput.connection(with: .video) {
-                // Stabilization
-                if connection.isVideoStabilizationSupported {
-                    connection.preferredVideoStabilizationMode =
-                    strongSelf.videoStabilizationEnabled ? .cinematic : .off
+            do {
+                self.session.beginConfiguration()
+                defer { self.session.commitConfiguration() }
+                
+                // Resolution
+                let targetPreset: AVCaptureSession.Preset = {
+                    switch self.videoResolution {
+                    case .res720p: return .hd1280x720
+                    case .res1080p: return .hd1920x1080
+                    case .res4k:
+                        return self.session.canSetSessionPreset(.hd4K3840x2160) ?
+                               .hd4K3840x2160 : .hd1920x1080
+                    }
+                }()
+                
+                if self.session.canSetSessionPreset(targetPreset) {
+                    self.session.sessionPreset = targetPreset
                 }
                 
-                // Codec (H.264 / HEVC) – best effort
-                if #available(iOS 11.0, *) {
-                    let available = strongSelf.movieOutput.availableVideoCodecTypes
-                    
-                    let desiredCodec: AVVideoCodecType = {
-                        switch strongSelf.videoCodec {
-                        case .h264: return .h264
-                        case .hevc: return .hevc
-                        }
-                    }()
-                    
-                    let codecToUse: AVVideoCodecType
-                    if available.contains(desiredCodec) {
-                        codecToUse = desiredCodec
-                    } else if available.contains(.hevc) {
-                        codecToUse = .hevc
-                    } else if available.contains(.h264) {
-                        codecToUse = .h264
-                    } else if let first = available.first {
-                        codecToUse = first
-                    } else {
-                        codecToUse = .h264
+                // Frame rate
+                let desiredFPS = Double(self.videoFrameRate.rawValue)
+                if let range = device.activeFormat.videoSupportedFrameRateRanges.first(where: {
+                    desiredFPS >= $0.minFrameRate && desiredFPS <= $0.maxFrameRate
+                }) {
+                    try device.lockForConfiguration()
+                    device.activeVideoMinFrameDuration = CMTimeMake(value: 1, timescale: Int32(desiredFPS))
+                    device.activeVideoMaxFrameDuration = CMTimeMake(value: 1, timescale: Int32(desiredFPS))
+                    device.unlockForConfiguration()
+                }
+                
+                // Movie output settings
+                if let connection = self.movieOutput.connection(with: .video) {
+                    // Stabilization
+                    if connection.isVideoStabilizationSupported {
+                        connection.preferredVideoStabilizationMode =
+                        self.videoStabilizationEnabled ? .cinematic : .off
                     }
                     
-                    strongSelf.movieOutput.setOutputSettings(
-                        [AVVideoCodecKey: codecToUse],
-                        for: connection
-                    )
+                    // Codec
+                    if #available(iOS 11.0, *) {
+                        let desiredCodec: AVVideoCodecType = {
+                            switch self.videoCodec {
+                            case .h264: return .h264
+                            case .hevc: return .hevc
+                            }
+                        }()
+                        
+                        let available = self.movieOutput.availableVideoCodecTypes
+                        let codecToUse = available.contains(desiredCodec) ? desiredCodec :
+                                        available.contains(.hevc) ? .hevc :
+                                        available.contains(.h264) ? .h264 :
+                                        available.first ?? .h264
+                        
+                        self.movieOutput.setOutputSettings([AVVideoCodecKey: codecToUse], for: connection)
+                    }
                 }
                 
-                strongSelf.session.commitConfiguration()
-              }
-            })
+            } catch {
+                print("❌ Video configuration error: \(error)")
+            }
         }
-
+    }
+    
+    
    }
 
 // MARK: - Camera Switching
@@ -1889,3 +1847,33 @@ extension CameraController {
         }
     }
 }
+
+// MARK: - Session Interruption Handling
+extension CameraController {
+    private func setupNotifications() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionWasInterrupted),
+            name: .AVCaptureSessionWasInterrupted,
+            object: session
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(sessionInterruptionEnded),
+            name: .AVCaptureSessionInterruptionEnded,
+            object: session
+        )
+    }
+    
+    @objc private func sessionWasInterrupted(notification: Notification) {
+        DispatchQueue.main.async {
+            self.isSessionRunning = false
+        }
+    }
+    
+    @objc private func sessionInterruptionEnded(notification: Notification) {
+        startSession()
+    }
+}
+
