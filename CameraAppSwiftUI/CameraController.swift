@@ -1826,3 +1826,66 @@ extension CameraController {
         }
 
    }
+
+// MARK: - Camera Switching
+extension CameraController {
+    func switchCamera() {
+        sessionQueue.async { [weak self] in
+            guard let self else { return }
+            
+            self.session.beginConfiguration()
+            defer { self.session.commitConfiguration() }
+            
+            // Remove current input
+            if let currentInput = self.videoDeviceInput {
+                self.session.removeInput(currentInput)
+            }
+            
+            // Determine new camera position
+            let currentPosition = self.videoDeviceInput?.device.position ?? .back
+            let newPosition: AVCaptureDevice.Position = (currentPosition == .back) ? .front : .back
+            
+            // Get new camera device
+            guard let newCamera = AVCaptureDevice.default(
+                .builtInWideAngleCamera,
+                for: .video,
+                position: newPosition
+            ) else {
+                print("❌ Unable to get camera device for position: \(newPosition)")
+                return
+            }
+            
+            do {
+                let newVideoInput = try AVCaptureDeviceInput(device: newCamera)
+                
+                if self.session.canAddInput(newVideoInput) {
+                    self.session.addInput(newVideoInput)
+                    self.videoDeviceInput = newVideoInput
+                    
+                    // Update photo output connection for mirroring
+                    if let connection = self.photoOutput.connection(with: .video) {
+                        if connection.isVideoMirroringSupported {
+                            connection.isVideoMirrored = (newPosition == .front)
+                        }
+                    }
+                    
+                    // Re-apply settings for the new camera
+                    DispatchQueue.main.async {
+                        self.applyExposureSettings()
+                        self.applyFocusSettings()
+                        self.applyWhiteBalanceSettings()
+                        self.applyZoomSettings()
+                    }
+                } else {
+                    print("❌ Cannot add new camera input")
+                }
+            } catch {
+                print("❌ Error switching camera: \(error)")
+                // Try to re-add the old input if available
+                if let oldInput = self.videoDeviceInput {
+                    self.session.addInput(oldInput)
+                }
+            }
+        }
+    }
+}

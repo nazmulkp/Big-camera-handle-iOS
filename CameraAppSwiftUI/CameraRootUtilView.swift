@@ -136,44 +136,61 @@ struct QuickActionButton: View {
 
 // MARK: - Zoom control bar
 
+// MARK: - Zoom control bar (Debug version)
+
 struct ZoomControlBar: View {
     @ObservedObject var controller: CameraController
 
-    // “native” presets we’ll try to hit
     private let ultraWideZoom: CGFloat = 0.5
-    private let wideZoom:      CGFloat = 1.0
-    private let teleZoom:      CGFloat = 2.0
+    private let wideZoom: CGFloat = 1.0
+    private let teleZoom: CGFloat = 2.0
+    
+    private var isUltraWideSelected: Bool { controller.zoomFactor <= 0.7 }
+    private var isWideSelected: Bool { controller.zoomFactor > 0.7 && controller.zoomFactor <= 1.5 }
+    private var isTeleSelected: Bool { controller.zoomFactor > 1.5 }
 
     var body: some View {
-        HStack(spacing: 12) {
-            // Preset buttons
-            ZoomPresetButton(
-                label: "0.5x",
-                isSelected: controller.zoomFactor < 0.75,
-                action: { controller.setZoomPreset(ultraWideZoom) }
-            )
+        VStack(spacing: 8) {
+            HStack(spacing: 12) {
+                ZoomPresetButton(
+                    label: "0.5x",
+                    isSelected: isUltraWideSelected,
+                    action: {
+                        print("Setting zoom to 0.5x")
+                        controller.setZoomPreset(ultraWideZoom)
+                    }
+                )
 
-            ZoomPresetButton(
-                label: "1x",
-                isSelected: controller.zoomFactor >= 0.75 && controller.zoomFactor < 1.5,
-                action: { controller.setZoomPreset(wideZoom) }
-            )
+                ZoomPresetButton(
+                    label: "1x",
+                    isSelected: isWideSelected,
+                    action: {
+                        print("Setting zoom to 1.0x")
+                        controller.setZoomPreset(wideZoom)
+                    }
+                )
 
-            ZoomPresetButton(
-                label: "2x",
-                isSelected: controller.zoomFactor >= 1.5 && controller.zoomFactor < 2.5,
-                action: { controller.setZoomPreset(teleZoom) }
-            )
+                ZoomPresetButton(
+                    label: "2x",
+                    isSelected: isTeleSelected,
+                    action: {
+                        print("Setting zoom to 2.0x")
+                        controller.setZoomPreset(teleZoom)
+                    }
+                )
 
-            // Continuous zoom slider
-            Slider(
-                value: Binding(
-                    get: { controller.zoomSliderValue },
-                    set: { controller.updateZoomSlider($0) }
-                ),
-                in: 0...1
-            )
-            .tint(.white)
+                Slider(
+                    value: Binding(
+                        get: { controller.zoomSliderValue },
+                        set: {
+                            print("Slider value: \($0)")
+                            controller.updateZoomSlider($0)
+                        }
+                    ),
+                    in: 0...1
+                )
+                .tint(.white)
+            }
         }
         .font(.caption)
     }
@@ -188,19 +205,17 @@ struct ZoomPresetButton: View {
         Button(action: action) {
             Text(label)
                 .font(.caption2)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 4)
+                .padding(.horizontal, 10) // Slightly wider for better touch target
+                .padding(.vertical, 6)   // Slightly taller
                 .background(
                     RoundedRectangle(cornerRadius: 6)
-                        .fill(isSelected ? Color.white.opacity(0.9)
-                                         : Color.white.opacity(0.15))
+                        .fill(isSelected ? Color.white : Color.white.opacity(0.15))
                 )
                 .foregroundStyle(isSelected ? .black : .white)
         }
         .buttonStyle(.plain)
     }
 }
-
 
 
 // MARK: - Section helpers

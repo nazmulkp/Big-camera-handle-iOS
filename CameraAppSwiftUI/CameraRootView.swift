@@ -52,13 +52,13 @@ struct CameraRootView: View {
                         VStack(alignment: .leading, spacing: 12) {
                             Spacer()
                             QuickActionsView(controller: controller, mode: $mode)
-                            
-                            if mode == .video {
+                             .padding(.leading, 16)
+                            if mode != .photo {
                                 AudioLevelMetersView(controller: controller)
-                                    .padding(.top, 8)
+                                    //.padding(.top, 8)
                             }
                         }
-                        .padding(.leading, 16)
+                   
                         .padding(.bottom, 180) // Increased to avoid bottom bar overlap
 
                         Spacer()
@@ -69,13 +69,13 @@ struct CameraRootView: View {
                         VStack(alignment: .trailing, spacing: 12) {
                             Spacer()
                             QuickActionsView(controller: controller, mode: $mode)
-                            
-                            if mode == .video && meterMode == .audio {
+                                .padding(.trailing, 16)
+                            if mode != .photo{
                                 AudioLevelMetersView(controller: controller)
-                                    .padding(.top, 8)
+                                   /// .padding(.top, 8)
                             }
                         }
-                        .padding(.trailing, 16)
+                       // .padding(.trailing, 4)
                         .padding(.bottom, 180) // Increased to avoid bottom bar overlap
                     }
                 }
@@ -317,21 +317,78 @@ struct MinimalBottomControlsView: View {
     }
 
     private var shutterRow: some View {
-        HStack(spacing: 32) { // Increased spacing
+        HStack(spacing: 0) { // Increased spacing
             if isLeftHandedLayout {
                 shutterButton
+                    .padding(.leading,20)
+                takePhoto
+                    .padding(.horizontal,22)
+                switchCamera
+                    .padding(.horizontal,22)
                 Spacer()
+                
                 proControlsButton
+                    .padding(.horizontal,22)
                 lastThumbnailButton
             } else {
+                
                 proControlsButton
+                // Camera switch button (front/back)
+                takePhoto
+                    .padding(.leading,22)
                 Spacer()
                 shutterButton
                 Spacer()
+                switchCamera
+                    .padding(.trailing,22)
                 lastThumbnailButton
             }
         }
     }
+    
+    
+    private var takePhoto:some View {
+        // More prominent quick photo button
+        Button {
+            if !controller.isRecording {
+                mode = .photo
+                controller.triggerPhotoCapture()
+            }
+        } label: {
+            Image(systemName: "camera.fill")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(controller.isRecording ? .gray : .white)
+                .frame(width: 44, height: 44)
+                .background(controller.isRecording ? .black.opacity(0.3) : .blue)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(controller.isRecording ? .gray : .blue, lineWidth: 2)
+                )
+        }
+        .disabled(controller.isRecording)
+    }
+    
+    private var switchCamera:some View {
+        Button {
+            if !controller.isRecording {
+                controller.switchCamera()
+            }
+        } label: {
+            Image(systemName: "camera.rotate")
+                .font(.system(size: 20, weight: .semibold))
+                .foregroundStyle(controller.isRecording ? .gray : .white)
+                .frame(width: 44, height: 44)
+                .background(controller.isRecording ? .black.opacity(0.3) : .purple)
+                .clipShape(Circle())
+                .overlay(
+                    Circle()
+                        .stroke(controller.isRecording ? .gray : .purple, lineWidth: 2)
+                )
+        }
+        .disabled(controller.isRecording)
+    }
+    
 
     private var shutterButton: some View {
         Button {
@@ -492,7 +549,7 @@ struct AudioLevelMetersView: View {
                 label: "R"
             )
         }
-        .padding(8)
+        .padding(4)
         .background(Color.black.opacity(0.5)) // More opaque
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
         .frame(width: 80) // Fixed width for consistency
