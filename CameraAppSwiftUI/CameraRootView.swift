@@ -161,7 +161,7 @@ struct CameraRootView: View {
     private var previewLayer: some View {
         GeometryReader { geo in
             ZStack {
-                CameraPreviewView(session: controller.session)
+                CameraPreviewView(controller: controller)
                     .ignoresSafeArea()
 
                 // Timer countdown overlay (center)

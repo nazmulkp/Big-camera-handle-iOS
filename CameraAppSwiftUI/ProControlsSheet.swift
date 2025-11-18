@@ -22,7 +22,9 @@ struct ProControlsSheet: View {
                     FocusSection(controller: controller)
                     FormatSection(controller: controller)
                     VideoSection(controller: controller)
+                    LUTSection(controller: controller) 
                     MonitoringSection(controller: controller, meterMode: $meterMode)
+                    
                     
                     Section {
                         Toggle(isOn: $isLeftHandedLayout) {
@@ -683,5 +685,95 @@ struct VideoSection: View {
         let bitrate = controller.videoBitratePreset.label
 
         return "\(res) • \(fps) • \(stab) • \(codec) • \(color) • \(bitrate)"
+    }
+}
+
+struct LUTSection: View {
+    @ObservedObject var controller: CameraController
+    @State private var showImporter = false
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            SectionHeader(title: "Looks / LUTs")
+
+            // Preset chips
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(LUTPreset.allCases) { preset in
+                        Button {
+                            if preset == .imported {
+                                // If no imported LUT yet, prompt for one
+                                if controller.lutPreset == .imported && controller.previewImage != nil {
+                                    controller.setLUTPreset(.imported)
+                                } else {
+                                    showImporter = true
+                                }
+                            } else {
+                                controller.setLUTPreset(preset)
+                            }
+                        } label: {
+                            Text(preset.displayName)
+                                .font(.caption)
+                                .padding(.horizontal, 10)
+                                .padding(.vertical, 6)
+                                .background(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .fill(controller.lutPreset == preset
+                                              ? Color.blue
+                                              : Color.gray.opacity(0.3))
+                                )
+                                .foregroundStyle(.white)
+                        }
+                        .buttonStyle(.plain)
+                    }
+                }
+            }
+
+            // Strength slider
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    Text("Strength")
+                        .font(.caption2)
+                        .foregroundStyle(.white.opacity(0.7))
+                    Spacer()
+                    Text(String(format: "%.0f%%", controller.lutIntensity * 100))
+                        .font(.caption2.monospacedDigit())
+                        .foregroundStyle(.white.opacity(0.7))
+                }
+
+                Slider(
+                    value: Binding(
+                        get: { Double(controller.lutIntensity) },
+                        set: { controller.setLUTIntensity(CGFloat($0)) }
+                    ),
+                    in: 0...1
+                )
+            }
+
+            // Apply to captured photos toggle
+            Toggle(isOn: Binding(
+                get: { controller.applyLUTToCaptures },
+                set: { controller.applyLUTToCaptures = $0 }
+            )) {
+                Text("Apply to captured photos")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+
+        }
+        .fileImporter(
+            isPresented: $showImporter,
+            allowedContentTypes: [.data],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                if let url = urls.first {
+                    controller.importLUT(from: url)
+                }
+            case .failure(let error):
+                print("❌ LUT import failed: \(error)")
+            }
+        }
     }
 }

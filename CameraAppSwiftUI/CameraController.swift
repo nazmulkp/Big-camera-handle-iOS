@@ -4,6 +4,8 @@ import UIKit
 import Photos
 import UniformTypeIdentifiers
 import CoreImage
+import QuartzCore   // for CACurrentMediaTime()
+
 
 // Shared CI context for histogram rendering
 fileprivate let histogramCIContext = CIContext()
@@ -214,7 +216,29 @@ enum FocusControlMode: String, CaseIterable, Identifiable {
 @MainActor
 final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     
-    
+    // MARK: - LUT / Looks
+
+    @Published var lutPreset: LUTPreset = .none
+    @Published var lutIntensity: CGFloat = 1.0          // 0…1
+    @Published var applyLUTToCaptures: Bool = true      // toggle in UI later
+
+    /// Current CI filter for the selected LUT
+     var lutFilter: CIFilter?
+
+    /// Optional URL of imported .cube LUT
+     var importedLUTURL: URL?
+
+    /// Use the shared histogram CIContext for LUT rendering as well
+     let lutContext = histogramCIContext
+
+    // MARK: - Live preview (CI-based with LUT)
+
+    /// Latest video frame for preview (already LUT-processed)
+    @Published var previewImage: CGImage?
+
+    /// Throttle live preview updates (target ~30 fps)
+    private var lastPreviewFrameTime: CFTimeInterval = 0
+
 
     // MARK: - Audio monitoring
 
@@ -354,9 +378,29 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
     override init() {
         super.init()
+        
+        // Restore last LUT preset
+        if let raw = UserDefaults.standard.string(forKey: "LUTPreset"),
+           let preset = LUTPreset(rawValue: raw) {
+            lutPreset = preset
+        }
+
+        let storedIntensity = UserDefaults.standard.double(forKey: "LUTIntensity")
+        if storedIntensity > 0 {
+            lutIntensity = CGFloat(storedIntensity).clamped(to: 0...1)
+        } else {
+            lutIntensity = 1.0
+        }
+
+        // Try to load LUT filter if not .none
+        if lutPreset != .none {
+            reloadLUTFilter()
+        }
+        
         configureSession()
     }
 
+    
     // MARK: - Session configuration
     private func configureSession() {
         sessionQueue.async { [weak self] in
@@ -1482,12 +1526,54 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
     @MainActor
     private func handleCaptureResult(processedData: Data?) {
-        if let processedData,
-           let image = UIImage(data: processedData) {
+        guard var data = processedData else {
+            print("⚠️ No image data to handle.")
+            return
+        }
+
+        // Apply LUT for JPEG / HEIF (skip RAW style formats)
+        if applyLUTToCaptures,
+           lutPreset != .none,
+           currentCaptureFormat == .jpeg || currentCaptureFormat == .heif,
+           let ciInput = CIImage(data: data) {
+
+            let outputCI = applyCurrentLUT(to: ciInput)
+            let colorSpace = ciInput.colorSpace ?? CGColorSpace(name: CGColorSpace.sRGB)!
+
+            if currentCaptureFormat == .heif {
+                if #available(iOS 11.0, *) {
+                    if let heifData = lutContext.heifRepresentation(
+                        of: outputCI,
+                        format: .RGBA8,
+                        colorSpace: colorSpace,
+                        options: [:]
+                    ) {
+                        data = heifData
+                    }
+                } else if let jpegData = lutContext.jpegRepresentation(
+                            of: outputCI,
+                            colorSpace: colorSpace,
+                            options: [:]) {
+                    data = jpegData
+                }
+            } else {
+                if let jpegData = lutContext.jpegRepresentation(
+                    of: outputCI,
+                    colorSpace: colorSpace,
+                    options: [:]
+                ) {
+                    data = jpegData
+                }
+            }
+        }
+
+        // Update thumbnail
+        if let image = UIImage(data: data) {
             self.lastCapturedImage = image
         }
 
-        saveToPhotoLibrary(processedData: processedData)
+        // Save final processed data (with LUT if applied)
+        saveToPhotoLibrary(processedData: data)
     }
 
     @MainActor
@@ -1621,12 +1707,13 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate{
             return
         }
 
-        // 🎥 Video: histogram
+        // 🎥 Video: histogram + live preview with LUT
         guard output === videoDataOutput,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
 
+        // ----- Histogram (same as before) -----
         let ciImage  = CIImage(cvPixelBuffer: pixelBuffer)
         let extent   = ciImage.extent
         let binCount = 64
@@ -1663,8 +1750,32 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate{
         }
 
         Task { @MainActor [weak self] in
-            self?.histogramBins = bins
+            guard let self else { return }
+            self.histogramBins = bins
+
+            // ----- Live LUT preview -----
+
+            let now = CACurrentMediaTime()
+            // Throttle to ~30 fps
+            if now - self.lastPreviewFrameTime < (1.0 / 30.0) {
+                return
+            }
+            self.lastPreviewFrameTime = now
+
+            // Build CIImage again on main from the same pixel buffer
+            var frameCI = CIImage(cvPixelBuffer: pixelBuffer)
+
+            // Apply LUT if active
+            if self.lutPreset != .none && self.lutIntensity > 0.001 {
+                frameCI = self.applyCurrentLUT(to: frameCI)
+            }
+
+            // Render to CGImage
+            if let cg = self.lutContext.createCGImage(frameCI, from: frameCI.extent) {
+                self.previewImage = cg
+            }
         }
+
     }
 }
 
