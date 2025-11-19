@@ -225,8 +225,13 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     /// Current CI filter for the selected LUT
      var lutFilter: CIFilter?
 
-    /// Optional URL of imported .cube LUT
+    /// Optional URL of imported .cube LUT (resolved from bookmark)
      var importedLUTURL: URL?
+
+    /// Stored bookmark data for imported LUT
+     var importedLUTBookmarkData: Data?
+
+     let importedLUTBookmarkKey = "ImportedLUTBookmarkData"
 
     /// Use the shared histogram CIContext for LUT rendering as well
      let lutContext = histogramCIContext
@@ -378,7 +383,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
     override init() {
         super.init()
-        
+
         // Restore last LUT preset
         if let raw = UserDefaults.standard.string(forKey: "LUTPreset"),
            let preset = LUTPreset(rawValue: raw) {
@@ -392,14 +397,40 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
             lutIntensity = 1.0
         }
 
+        // Restore imported LUT bookmark (if any)
+        if let bookmark = UserDefaults.standard.data(forKey: importedLUTBookmarkKey) {
+            importedLUTBookmarkData = bookmark
+
+            var isStale = false
+            if let url = try? URL(
+                resolvingBookmarkData: bookmark,
+                options: [],
+                relativeTo: nil,
+                bookmarkDataIsStale: &isStale
+            ) {
+                if isStale {
+                    // Re-create fresh bookmark if stale
+                    if let newData = try? url.bookmarkData(
+                        options: [],
+                        includingResourceValuesForKeys: nil,
+                        relativeTo: nil
+                    ) {
+                        importedLUTBookmarkData = newData
+                        UserDefaults.standard.set(newData, forKey: importedLUTBookmarkKey)
+                    }
+                }
+
+                importedLUTURL = url
+            }
+        }
+
         // Try to load LUT filter if not .none
         if lutPreset != .none {
             reloadLUTFilter()
         }
-        
+
         configureSession()
     }
-
     
     // MARK: - Session configuration
     private func configureSession() {

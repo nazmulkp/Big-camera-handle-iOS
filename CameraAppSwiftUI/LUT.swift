@@ -6,24 +6,30 @@ import UIKit
 
 enum LUTPreset: String, CaseIterable, Identifiable {
     case none
-    case kodak
-    case fujifilm
+    case kodak       // internally "Kodak-style warm film"
+    case fujifilm    // internally "Fuji-style pastel film"
     case tealOrange
-    case imported        // for user .cube
+    case imported    // for user .cube
 
     var id: String { rawValue }
 
+    /// Name shown in the UI (safe, non-trademarked)
     var displayName: String {
         switch self {
-        case .none:       return "None"
-        case .kodak:      return "Kodak"
-        case .fujifilm:   return "Fujifilm"
-        case .tealOrange: return "Teal / Orange"
-        case .imported:   return "Imported"
+        case .none:
+            return "None"
+        case .kodak:
+            return "Warm Classic"      // was "Kodak"
+        case .fujifilm:
+            return "Soft Pastel"       // was "Fujifilm"
+        case .tealOrange:
+            return "Cinematic Teal"    // was "Teal / Orange"
+        case .imported:
+            return "Imported"
         }
     }
 
-    /// Bundle .cube filename for built-ins (you add these files later).
+    /// Bundle .cube filename for built-ins (internal only, filenames can stay)
     var bundleCubeFileName: String? {
         switch self {
         case .none, .imported:
@@ -37,6 +43,7 @@ enum LUTPreset: String, CaseIterable, Identifiable {
         }
     }
 }
+
 
 
 
@@ -113,13 +120,27 @@ extension CameraController {
         }
     }
 
-    /// Call this from your importer when user picks a .cube file
     func importLUT(from url: URL) {
-        importedLUTURL = url
-        lutPreset = .imported
-        UserDefaults.standard.set(lutPreset.rawValue, forKey: "LUTPreset")
+        do {
+            // Create security-scoped bookmark
+            let data = try url.bookmarkData(
+                options: [],
+                includingResourceValuesForKeys: nil,
+                relativeTo: nil
+            )
 
-        reloadLUTFilter()
+            importedLUTBookmarkData = data
+            importedLUTURL = url
+
+            UserDefaults.standard.set(data, forKey: importedLUTBookmarkKey)
+
+            lutPreset = .imported
+            UserDefaults.standard.set(lutPreset.rawValue, forKey: "LUTPreset")
+
+            reloadLUTFilter()
+        } catch {
+            print("❌ Failed to create LUT bookmark: \(error)")
+        }
     }
 
     func setLUTIntensity(_ value: CGFloat) {
@@ -147,8 +168,23 @@ extension CameraController {
             }
         }
 
-        guard let cubeURL = url,
-              let filter = LUTLoader.colorCubeFilter(fromCubeURL: cubeURL) else {
+        guard let cubeURL = url else {
+            print("⚠️ No LUT URL for preset \(lutPreset.rawValue)")
+            lutFilter = nil
+            return
+        }
+
+        // For imported LUTs we must use security-scoped access
+        let needsSecurityScope = (lutPreset == .imported)
+        let didAccess = needsSecurityScope ? cubeURL.startAccessingSecurityScopedResource() : false
+
+        defer {
+            if needsSecurityScope && didAccess {
+                cubeURL.stopAccessingSecurityScopedResource()
+            }
+        }
+
+        guard let filter = LUTLoader.colorCubeFilter(fromCubeURL: cubeURL) else {
             print("⚠️ Failed to load LUT filter for \(lutPreset.rawValue)")
             lutFilter = nil
             return
