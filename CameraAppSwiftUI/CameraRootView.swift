@@ -9,7 +9,6 @@ struct CameraRootView: View {
     @AppStorage("isLeftHandedLayout") private var isLeftHandedLayout: Bool = false
     
     @StateObject private var controller = CameraController()
-    @State private var mode: CaptureMode = .video
     @State private var showLastCapture = false
     @State private var focusPoint: CGPoint? = nil
     @State private var showFocusReticle: Bool = false
@@ -32,11 +31,10 @@ struct CameraRootView: View {
 
                 // Bottom controls
                 if isZenMode && !zenHUDExpanded {
-                    ZenBottomBarView(controller: controller, mode: $mode)
+                    ZenBottomBarView(controller: controller)
                 } else {
                     MinimalBottomControlsView(
                         controller: controller,
-                        mode: $mode,
                         showLastCapture: $showLastCapture,
                         openProControls: { showProControlsSheet = true },
                         isLeftHandedLayout: $isLeftHandedLayout
@@ -51,9 +49,9 @@ struct CameraRootView: View {
                         // Left side elements
                         VStack(alignment: .leading, spacing: 12) {
                             Spacer()
-                            QuickActionsView(controller: controller, mode: $mode)
+                            QuickActionsView(controller: controller)
                              .padding(.leading, 16)
-                            if mode != .photo {
+                            if controller.mode != .photo {
                                 AudioLevelMetersView(controller: controller)
                                     //.padding(.top, 8)
                             }
@@ -68,9 +66,9 @@ struct CameraRootView: View {
                         // Right side elements
                         VStack(alignment: .trailing, spacing: 12) {
                             Spacer()
-                            QuickActionsView(controller: controller, mode: $mode)
+                            QuickActionsView(controller: controller)
                                 .padding(.trailing, 16)
-                            if mode != .photo{
+                            if controller.mode != .photo{
                                 AudioLevelMetersView(controller: controller)
                                    /// .padding(.top, 8)
                             }
@@ -123,7 +121,6 @@ struct CameraRootView: View {
         .sheet(isPresented: $showProControlsSheet) {
             ProControlsSheet(
                 controller: controller,
-                mode: $mode,
                 meterMode: $meterMode,
                 isLeftHandedLayout: $isLeftHandedLayout,
                 isZenMode: $isZenMode
@@ -242,7 +239,6 @@ struct CameraRootView: View {
 // MARK: - Updated Minimal Bottom Controls with better spacing
 struct MinimalBottomControlsView: View {
     @ObservedObject var controller: CameraController
-    @Binding var mode: CaptureMode
     @Binding var showLastCapture: Bool
     var openProControls: () -> Void
     @Binding var isLeftHandedLayout: Bool
@@ -266,10 +262,10 @@ struct MinimalBottomControlsView: View {
         HStack(spacing: 12) { // Increased spacing
             // Status indicator
             let (statusColor, statusText): (Color, String) = {
-                if mode == .video && controller.isRecording {
+                if controller.mode == .video && controller.isRecording {
                     return (.red, "REC \(controller.recordingDurationString())")
                 } else if controller.isSessionRunning {
-                    return (.green, mode == .video ? "Video Ready" : "Ready")
+                    return (.green, controller.mode == .video ? "Video Ready" : "Ready")
                 } else {
                     return (.yellow, "Starting…")
                 }
@@ -306,7 +302,7 @@ struct MinimalBottomControlsView: View {
     }
 
     private var readoutLine: String {
-        if mode == .photo {
+        if controller.mode == .photo {
             let ss  = controller.shutterReadoutShort()
             let ev  = controller.evReadoutShort()
             let iso = controller.isoReadoutShort()
@@ -321,6 +317,7 @@ struct MinimalBottomControlsView: View {
             if isLeftHandedLayout {
                 shutterButton
                     .padding(.leading,20)
+                    .disabled(controller.mode == .photo)
                 takePhoto
                     .padding(.horizontal,22)
                 switchCamera
@@ -338,6 +335,7 @@ struct MinimalBottomControlsView: View {
                     .padding(.leading,22)
                 Spacer()
                 shutterButton
+                    .disabled(controller.mode == .photo)
                 Spacer()
                 switchCamera
                     .padding(.trailing,22)
@@ -351,7 +349,8 @@ struct MinimalBottomControlsView: View {
         // More prominent quick photo button
         Button {
             if !controller.isRecording {
-                mode = .photo
+                controller.mode = .photo
+                
                 controller.triggerPhotoCapture()
             }
         } label: {
@@ -392,7 +391,7 @@ struct MinimalBottomControlsView: View {
 
     private var shutterButton: some View {
         Button {
-            switch mode {
+            switch controller.mode {
             case .photo:
                 controller.triggerPhotoCapture()
             case .video:
@@ -408,7 +407,7 @@ struct MinimalBottomControlsView: View {
                     .strokeBorder(.white.opacity(0.9), lineWidth: 4)
                     .frame(width: 80, height: 80)
 
-                if mode == .photo {
+                if controller.mode == .photo {
                     Circle()
                         .fill(.white)
                         .frame(width: 64, height: 64)
@@ -471,13 +470,12 @@ struct MinimalBottomControlsView: View {
 // MARK: - Updated Quick Actions with better spacing
 struct QuickActionsView: View {
     @ObservedObject var controller: CameraController
-    @Binding var mode: CaptureMode
 
     var body: some View {
         VStack(spacing: 16) { // Increased spacing
             // Flash
             Button {
-                controller.cycleFlashMode(isVideo: mode == .video)
+                controller.cycleFlashMode(isVideo: controller.mode == .video)
             } label: {
                 QuickActionIcon(
                     systemImage: controller.flashModeState.iconName,
@@ -571,7 +569,6 @@ struct SmallMonitoringHUD: View {
 // MARK: - Updated Zen Bottom Bar
 struct ZenBottomBarView: View {
     @ObservedObject var controller: CameraController
-    @Binding var mode: CaptureMode
 
     var body: some View {
         VStack(spacing: 12) { // Increased spacing
@@ -586,7 +583,7 @@ struct ZenBottomBarView: View {
 
             // Big shutter, centered
             Button {
-                switch mode {
+                switch controller.mode {
                 case .photo:
                     controller.triggerPhotoCapture()
                 case .video:
@@ -602,7 +599,7 @@ struct ZenBottomBarView: View {
                         .strokeBorder(.white.opacity(0.9), lineWidth: 4)
                         .frame(width: 80, height: 80)
 
-                    if mode == .photo {
+                    if controller.mode == .photo {
                         Circle()
                             .fill(.white)
                             .frame(width: 64, height: 64)
@@ -630,7 +627,7 @@ struct ZenBottomBarView: View {
     }
 
     private var readoutLine: String {
-        if mode == .photo {
+        if controller.mode == .photo {
             let ss  = controller.shutterReadoutShort()
             let ev  = controller.evReadoutShort()
             let iso = controller.isoReadoutShort()

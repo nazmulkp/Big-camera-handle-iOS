@@ -141,13 +141,28 @@ struct QuickActionButton: View {
 struct ZoomControlBar: View {
     @ObservedObject var controller: CameraController
 
+    // Target zoom factors we *want* for each preset
     private let ultraWideZoom: CGFloat = 0.5
-    private let wideZoom: CGFloat = 1.0
-    private let teleZoom: CGFloat = 2.0
-    
-    private var isUltraWideSelected: Bool { controller.zoomFactor <= 0.7 }
-    private var isWideSelected: Bool { controller.zoomFactor > 0.7 && controller.zoomFactor <= 1.5 }
-    private var isTeleSelected: Bool { controller.zoomFactor > 1.5 }
+    private let wideZoom: CGFloat      = 1.0
+    private let teleZoom: CGFloat      = 2.0
+
+    /// Index of the preset that is currently closest to the real zoom factor
+    private var selectedPresetIndex: Int {
+        let current = controller.zoomFactor
+        let presets: [CGFloat] = [ultraWideZoom, wideZoom, teleZoom]
+
+        // find the index with minimal distance to current zoom
+        let (index, _) = presets
+            .enumerated()
+            .min(by: { abs($0.element - current) < abs($1.element - current) })
+        ?? (1, wideZoom)   // default to 1x
+
+        return index
+    }
+
+    private var isUltraWideSelected: Bool { selectedPresetIndex == 0 }
+    private var isWideSelected: Bool      { selectedPresetIndex == 1 }
+    private var isTeleSelected: Bool      { selectedPresetIndex == 2 }
 
     var body: some View {
         VStack(spacing: 8) {
@@ -195,6 +210,7 @@ struct ZoomControlBar: View {
         .font(.caption)
     }
 }
+
 
 struct ZoomPresetButton: View {
     let label: String

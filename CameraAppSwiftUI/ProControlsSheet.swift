@@ -6,7 +6,6 @@ import AVFoundation
 struct ProControlsSheet: View {
     
     @ObservedObject var controller: CameraController
-    @Binding var mode: CaptureMode
     @Binding var meterMode: MeterMode
     @Binding var isLeftHandedLayout: Bool
     @Binding var isZenMode: Bool

@@ -8,214 +8,60 @@ import QuartzCore   // for CACurrentMediaTime()
 
 
 // Shared CI context for histogram rendering
-fileprivate let histogramCIContext = CIContext()
+//fileprivate let histogramCIContext = CIContext()
 
-enum VideoResolution: String, CaseIterable, Identifiable {
-    case res720p
-    case res1080p
-    case res4k
+// MARK: - Global CIContexts (each used on only one thread/actor)
 
-    var id: String { rawValue }
+// Used ONLY on camera.video.queue for preview CGImage creation
+fileprivate let videoPreviewCIContext: CIContext = {
+    CIContext(options: [
+        .priorityRequestLow: true
+    ])
+}()
 
-    var label: String {
-        switch self {
-        case .res720p:   return "720p"
-        case .res1080p:  return "1080p"
-        case .res4k:     return "4K"
-        }
-    }
-}
-
-enum VideoFrameRate: Int, CaseIterable, Identifiable {
-    case fps24 = 24
-    case fps30 = 30
-    case fps60 = 60
-
-    var id: Int { rawValue }
-
-    var label: String {
-        "\(rawValue) fps"
-    }
-}
-
-enum VideoCodecPreset: String, CaseIterable, Identifiable {
-    case h264
-    case hevc
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .h264:       return "H.264"
-        case .hevc:       return "HEVC"
-        }
-    }
-}
-
-enum VideoColorProfile: String, CaseIterable, Identifiable {
-    case sdr
-    case hdr
-    case appleLogLike
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .sdr:          return "SDR"
-        case .hdr:          return "HDR"
-        case .appleLogLike: return "Log"
-        }
-    }
-}
-
-enum VideoBitratePreset: String, CaseIterable, Identifiable {
-    case standard
-    case high
-    case max
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .standard: return "Std"
-        case .high:     return "High"
-        case .max:      return "Max"
-        }
-    }
-}
-
-
-enum FlashState: String, CaseIterable, Identifiable {
-    case off
-    case auto
-    case on
-
-    var id: String { rawValue }
-
-    var iconName: String {
-        switch self {
-        case .off:  return "bolt.slash"
-        case .auto: return "bolt.badge.a"
-        case .on:   return "bolt.fill"
-        }
-    }
-
-    var label: String {
-        switch self {
-        case .off:  return "Off"
-        case .auto: return "Auto"
-        case .on:   return "On"
-        }
-    }
-}
-
-
-// MARK: - Exposure control modes
-
-enum ExposureControlMode: String, CaseIterable, Identifiable {
-    case auto
-    case manual
-    case shutterPriority
-    case isoPriority
-
-    var id: String { rawValue }
-
-    var shortLabel: String {
-        switch self {
-        case .auto:            return "Auto"
-        case .manual:          return "M"
-        case .shutterPriority: return "S"
-        case .isoPriority:     return "ISO"
-        }
-    }
-}
-
-// MARK: - Photo formats
-
-enum PhotoFormat: String, CaseIterable, Identifiable {
-    case jpeg
-    case heif
-    case raw
-    case proRAW
-
-    var id: String { rawValue }
-
-    var shortLabel: String {
-        switch self {
-        case .jpeg:   return "JPEG"
-        case .heif:   return "HEIF"
-        case .raw:    return "RAW"
-        case .proRAW: return "ProRAW"
-        }
-    }
-}
-
-// MARK: - White balance
-
-enum WhiteBalanceMode: String, CaseIterable, Identifiable {
-    case auto
-    case manual
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .auto:   return "Auto"
-        case .manual: return "Manual"
-        }
-    }
-}
-
-enum WhiteBalancePreset: String, CaseIterable, Identifiable {
-    case daylight
-    case cloudy
-    case tungsten
-    case fluorescent
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .daylight:    return "Day"
-        case .cloudy:      return "Cloudy"
-        case .tungsten:    return "Tungsten"
-        case .fluorescent: return "Fluoro"
-        }
-    }
-
-    /// Approximate temperature (K) & tint values.
-    var temperatureAndTint: (temperature: Float, tint: Float) {
-        switch self {
-        case .daylight:    return (5500, 0)
-        case .cloudy:      return (6500, 0)
-        case .tungsten:    return (3200, 0)
-        case .fluorescent: return (4000, 10)
-        }
-    }
-}
-
-// MARK: - Focus control
-
-enum FocusControlMode: String, CaseIterable, Identifiable {
-    case auto
-    case manual
-
-    var id: String { rawValue }
-
-    var label: String {
-        switch self {
-        case .auto:   return "AF"
-        case .manual: return "MF"
-        }
-    }
-}
-
+// Used ONLY on camera.video.queue for histogram rendering
+fileprivate let histogramCIContext: CIContext = {
+    let options: [CIContextOption: Any] = [
+        .useSoftwareRenderer: true,
+        .priorityRequestLow: true
+    ]
+    return CIContext(options: options)
+}()
 
 
 
 @MainActor
 final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     
+    // MainActor context for UI operations
+    @MainActor
+    private lazy var mainCIContext: CIContext = {
+        return CIContext(options: [.useSoftwareRenderer: false])
+    }()
+    
+    // MARK: - CIContexts (locked per-thread)
+
+    // Background video processing (GPU)
+    private let videoCIContext = CIContext(options: [
+        .priorityRequestLow: true
+    ])
+
+    // Histogram (software renderer, safe)
+    private let histogramContext = CIContext(options: [
+        .useSoftwareRenderer: true
+    ])
+
+    // MainActor LUT context
+    @MainActor
+    lazy var lutContext: CIContext = {
+        CIContext(options: [:])
+    }()
+
+    
+    @Published var mode: CaptureMode = .video
+    // Use a dedicated context for LUT rendering & saving (MainActor only)
+    //let lutContext = CIContext()
+
     // MARK: - LUT / Looks
 
     @Published var lutPreset: LUTPreset = .none
@@ -233,9 +79,18 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
      let importedLUTBookmarkKey = "ImportedLUTBookmarkData"
 
-    /// Use the shared histogram CIContext for LUT rendering as well
-     let lutContext = histogramCIContext
+//    /// Use the shared histogram CIContext for LUT rendering as well
+//     let lutContext = histogramCIContext
 
+//    fileprivate let histogramCIContext: CIContext = {
+//        let options: [CIContextOption: Any] = [
+//            .useSoftwareRenderer: true,
+//            .priorityRequestLow: true
+//        ]
+//        return CIContext(options: options)
+//    }()
+
+    
     // MARK: - Live preview (CI-based with LUT)
 
     /// Latest video frame for preview (already LUT-processed)
@@ -1639,12 +1494,18 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
                 }
 
                 request.addResource(with: .photo, data: data, options: opts)
-            } completionHandler: { success, error in
-                if !success {
-                    print("❌ Failed to save to Photos: \(String(describing: error))")
-                } else {
-                    print("✅ Saved photo to Photos as \(format.rawValue)")
-                }
+            } completionHandler: { [weak self] success, error in
+                // Hop back to main actor before touching @Published / UI state
+                   Task { @MainActor [weak self] in
+                       guard let self else { return }
+
+                       if !success {
+                           print("❌ Failed to save to Photos: \(String(describing: error))")
+                       } else {
+                           print("✅ Saved photo to Photos as \(format.rawValue)")
+                           self.mode = .video     // ✅ now on main thread / main actor
+                       }
+                   }
             }
         }
     }
@@ -1727,29 +1588,28 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 }
 
 // MARK: - Video data output (Histogram) + Audio data output (Meters)
-
 extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     nonisolated func captureOutput(_ output: AVCaptureOutput,
                                    didOutput sampleBuffer: CMSampleBuffer,
                                    from connection: AVCaptureConnection) {
-        // 🔊 Audio: level meters
+        // 🔊 AUDIO: level meters
         if output is AVCaptureAudioDataOutput {
             processAudioSampleBuffer(sampleBuffer)
             return
         }
 
-        // 🎥 Video: histogram + live preview with LUT
+        // 🎥 VIDEO: histogram + live preview with LUT
         guard output is AVCaptureVideoDataOutput,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
 
-        // ----- Build CIImage for this frame -----
-        let ciImage  = CIImage(cvPixelBuffer: pixelBuffer)
-        let extent   = ciImage.extent
+        // Create CIImage and process histogram
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let extent = ciImage.extent
         let binCount = 64
 
-        // ----- Histogram (same as before) -----
+        // Histogram processing
         guard let filter = CIFilter(name: "CIAreaHistogram") else { return }
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(CIVector(cgRect: extent), forKey: "inputExtent")
@@ -1760,6 +1620,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         var bitmap = [Float](repeating: 0, count: binCount * 4)
 
+        // Use histogram context (thread-safe)
         histogramCIContext.render(
             outputImage,
             toBitmap: &bitmap,
@@ -1769,6 +1630,7 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
             colorSpace: nil
         )
 
+        // Process histogram bins
         var bins = [CGFloat](repeating: 0, count: binCount)
         for i in 0..<binCount {
             let r = bitmap[i * 4]
@@ -1781,41 +1643,45 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
             }
         }
 
-        // ----- Render a base CGImage on the capture queue -----
-        // This copies the pixels, so it is safe to use on the main actor later.
-        let basePreviewCGImage = histogramCIContext.createCGImage(ciImage, from: extent)
-
-        // ----- Send results to main actor for UI + LUT preview -----
+        // Throttle preview updates and process on main thread
+        let currentTime = CACurrentMediaTime()
+        
         Task { @MainActor [weak self] in
-            guard let self else { return }
-
+            guard let self = self else { return }
+            
             // Update histogram
             self.histogramBins = bins
-
-            // Throttle live preview to ~30 fps
-            let now = CACurrentMediaTime()
-            if now - self.lastPreviewFrameTime < (1.0 / 30.0) {
+            
+            // Throttle preview updates
+            if currentTime - self.lastPreviewFrameTime < (1.0 / 30.0) {
                 return
             }
-            self.lastPreviewFrameTime = now
-
-            guard let baseCG = basePreviewCGImage else { return }
-
-            // Build CIImage from CGImage (no more pixelBuffer usage here)
-            var frameCI = CIImage(cgImage: baseCG)
-
-            // Apply LUT if active
-            if self.lutPreset != .none && self.lutIntensity > 0.001 {
-                frameCI = self.applyCurrentLUT(to: frameCI)
-            }
-
-            // Render final preview CGImage
-            if let cg = self.lutContext.createCGImage(frameCI, from: frameCI.extent) {
-                self.previewImage = cg
-            }
+            self.lastPreviewFrameTime = currentTime
+            
+            // Create preview image on main thread
+            self.updatePreviewImage(with: ciImage)
         }
     }
+
+    @MainActor
+    private func updatePreviewImage(with ciImage: CIImage) {
+        var processedImage = ciImage
+        
+        // Apply LUT if enabled
+        if self.lutPreset != .none && self.lutIntensity > 0.001 {
+            processedImage = self.applyCurrentLUT(to: processedImage)
+        }
+        
+        // Create final image
+        guard let cgImage = self.mainCIContext.createCGImage(processedImage, from: processedImage.extent) else {
+            return
+        }
+        
+        self.previewImage = cgImage
+    }
+    
 }
+
 
 extension CameraController {
     // MARK: - Video configuration
