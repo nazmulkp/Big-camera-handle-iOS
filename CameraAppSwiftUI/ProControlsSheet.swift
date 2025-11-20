@@ -59,11 +59,78 @@ struct ProControlsSheet: View {
             .navigationTitle("Pro Controls")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Done") { dismiss() }
-                }
-            }
+                            // 🔴 New Reset button
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button(role: .destructive) {
+                                    resetToDefaults()
+                                } label: {
+                                    Text("Reset")
+                                }
+                            }
+                            
+                            ToolbarItem(placement: .topBarTrailing) {
+                                Button("Done") { dismiss() }
+                            }
+                        }
         }
+    }
+    
+    // MARK: - Reset all pro controls to defaults & close sheet
+
+    private func resetToDefaults() {
+        // --- White Balance ---
+        controller.whiteBalanceMode = .auto
+        controller.tempSliderValue = 0.5
+        controller.tintSliderValue = 0.5
+        controller.setWhiteBalanceMode(.auto)
+
+        // --- Exposure ---
+        controller.exposureMode = .auto
+        controller.shutterSliderValue = 0.5
+        controller.isoSliderValue = 0.5
+        controller.evSliderValue = 0.5
+        controller.autoISOMinSliderValue = 0.0
+        controller.autoISOMaxSliderValue = 1.0
+        controller.setExposureMode(.auto)
+
+        // --- Focus ---
+        controller.focusMode = .auto
+        controller.focusSliderValue = 0.5
+        controller.setFocusMode(.auto)
+
+        // --- Format ---
+        controller.photoFormat = .heif   // your default
+
+        // --- Video ---
+        controller.videoResolution = .res1080p
+        controller.videoFrameRate = .fps30
+        controller.videoCodec = .hevc
+        controller.videoColorProfile = .sdr
+        controller.videoStabilizationEnabled = true
+        controller.videoBitratePreset = .standard
+
+        // --- Monitoring / Meters ---
+        meterMode = .histogram          // typical default
+        controller.audioGainDB = 0
+        controller.setAudioMuted(false)
+
+        // --- Layout / HUD ---
+        isLeftHandedLayout = false
+        isZenMode = false
+
+        // --- Zoom (back to base) ---
+        controller.zoomSliderValue = 0.0
+        controller.applyZoomSettings()
+
+        // Re-apply settings to camera
+        controller.applyExposureSettings()
+        controller.applyEVSettings()
+        controller.applyWhiteBalanceSettings()
+        controller.applyFocusSettings()
+        controller.applyVideoConfiguration()
+
+        // Close the sheet immediately
+        dismiss()
     }
 }
 

@@ -1728,27 +1728,28 @@ extension CameraController: AVCaptureFileOutputRecordingDelegate {
 
 // MARK: - Video data output (Histogram) + Audio data output (Meters)
 
-extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate{
+extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
     nonisolated func captureOutput(_ output: AVCaptureOutput,
                                    didOutput sampleBuffer: CMSampleBuffer,
                                    from connection: AVCaptureConnection) {
         // 🔊 Audio: level meters
-        if output === audioDataOutput {
+        if output is AVCaptureAudioDataOutput {
             processAudioSampleBuffer(sampleBuffer)
             return
         }
 
         // 🎥 Video: histogram + live preview with LUT
-        guard output === videoDataOutput,
+        guard output is AVCaptureVideoDataOutput,
               let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
 
-        // ----- Histogram (same as before) -----
+        // ----- Build CIImage for this frame -----
         let ciImage  = CIImage(cvPixelBuffer: pixelBuffer)
         let extent   = ciImage.extent
         let binCount = 64
 
+        // ----- Histogram (same as before) -----
         guard let filter = CIFilter(name: "CIAreaHistogram") else { return }
         filter.setValue(ciImage, forKey: kCIInputImageKey)
         filter.setValue(CIVector(cgRect: extent), forKey: "inputExtent")
@@ -1780,33 +1781,39 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate{
             }
         }
 
+        // ----- Render a base CGImage on the capture queue -----
+        // This copies the pixels, so it is safe to use on the main actor later.
+        let basePreviewCGImage = histogramCIContext.createCGImage(ciImage, from: extent)
+
+        // ----- Send results to main actor for UI + LUT preview -----
         Task { @MainActor [weak self] in
             guard let self else { return }
+
+            // Update histogram
             self.histogramBins = bins
 
-            // ----- Live LUT preview -----
-
+            // Throttle live preview to ~30 fps
             let now = CACurrentMediaTime()
-            // Throttle to ~30 fps
             if now - self.lastPreviewFrameTime < (1.0 / 30.0) {
                 return
             }
             self.lastPreviewFrameTime = now
 
-            // Build CIImage again on main from the same pixel buffer
-            var frameCI = CIImage(cvPixelBuffer: pixelBuffer)
+            guard let baseCG = basePreviewCGImage else { return }
+
+            // Build CIImage from CGImage (no more pixelBuffer usage here)
+            var frameCI = CIImage(cgImage: baseCG)
 
             // Apply LUT if active
             if self.lutPreset != .none && self.lutIntensity > 0.001 {
                 frameCI = self.applyCurrentLUT(to: frameCI)
             }
 
-            // Render to CGImage
+            // Render final preview CGImage
             if let cg = self.lutContext.createCGImage(frameCI, from: frameCI.extent) {
                 self.previewImage = cg
             }
         }
-
     }
 }
 
