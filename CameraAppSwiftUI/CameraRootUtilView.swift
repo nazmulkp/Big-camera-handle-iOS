@@ -167,14 +167,14 @@ struct ZoomControlBar: View {
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 12) {
-                ZoomPresetButton(
-                    label: "0.5x",
-                    isSelected: isUltraWideSelected,
-                    action: {
-                        print("Setting zoom to 0.5x")
-                        controller.setZoomPreset(ultraWideZoom)
-                    }
-                )
+//                ZoomPresetButton(
+//                    label: "0.5x",
+//                    isSelected: isUltraWideSelected,
+//                    action: {
+//                        print("Setting zoom to 0.5x")
+//                        controller.setZoomPreset(ultraWideZoom)
+//                    }
+//                )
 
                 ZoomPresetButton(
                     label: "1x",
