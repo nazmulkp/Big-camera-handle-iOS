@@ -11,7 +11,7 @@ import SwiftUI
 struct CameraAppSwiftUIApp: App {
     var body: some Scene {
         WindowGroup {
-            PermissionGateView()
+            EasyCameraHomeView()
         }
     }
 }

@@ -16,19 +16,25 @@ import AVFoundation
 
 struct TopInfoBarView: View {
     @ObservedObject var controller: CameraController
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         HStack {
             Button {
-                // Settings hook
+                dismiss()
             } label: {
-                Image(systemName: "gearshape.fill")
+                Image(systemName: "chevron.backward")
                     .font(.system(size: 16, weight: .semibold))
                     .foregroundStyle(.white)
                     .padding(8)
                     .background(.black.opacity(0.4))
                     .clipShape(Circle())
+                    .opacity(controller.isRecording ? 0.4 :1.0)
+                    
             }
+            .disabled(controller.isRecording)
+            
+
 
             Spacer()
 
