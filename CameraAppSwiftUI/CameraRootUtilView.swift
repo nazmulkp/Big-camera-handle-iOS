@@ -48,16 +48,16 @@ struct TopInfoBarView: View {
 
             Spacer()
 
-            Button {
-                // Share / connect hook
-            } label: {
-                Image(systemName: "square.and.arrow.up")
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .padding(8)
-                    .background(.black.opacity(0.4))
-                    .clipShape(Circle())
-            }
+//            Button {
+//                // Share / connect hook
+//            } label: {
+//                Image(systemName: "square.and.arrow.up")
+//                    .font(.system(size: 16, weight: .semibold))
+//                    .foregroundStyle(.white)
+//                    .padding(8)
+//                    .background(.black.opacity(0.4))
+//                    .clipShape(Circle())
+//            }
         }
         .padding(.horizontal)
         .padding(.top, 10)
@@ -65,16 +65,16 @@ struct TopInfoBarView: View {
 
     private var infoText: String {
         let focal = controller.focalLengthReadout()
-
-        if controller.isRecording {
-            // Recording emphasis
-            return "\(focal) • REC \(controller.recordingDurationString())"
-        }
+        let battery = controller.batteryStatusSummary()
+//        if controller.isRecording {
+//            // Recording emphasis
+//            return "\(focal) • REC \(controller.recordingDurationString())"
+//        }
 
         if controller.videoResolution != .res1080p { // or use a `mode` binding
             // Video-style readout
             let videoSummary = controller.videoStatusSummary() // "1080p • 30 fps • HEVC"
-            return "\(focal) • \(videoSummary)"
+            return "\(focal) • \(videoSummary) • \(battery)"
         }
 
         // Photo-style (existing)
@@ -82,7 +82,7 @@ struct TopInfoBarView: View {
         let ss     = controller.shutterReadoutShort()
         let ev     = controller.evReadoutShort()
         let iso    = controller.isoReadoutShort()
-        return "\(focal) • \(format) • \(ss) SS • \(ev) EV • \(iso) ISO"
+        return "\(focal) • \(format) • \(ss) SS • \(ev) EV • \(iso) ISO • \(battery)"
     }
 }
 

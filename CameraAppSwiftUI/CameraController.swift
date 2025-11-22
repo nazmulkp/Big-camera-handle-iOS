@@ -233,12 +233,75 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
 
     @Published var isAEAFLocked: Bool = false
 
+    func batteryReadout() -> (percent: Int, state: UIDevice.BatteryState) {
+        let level = UIDevice.current.batteryLevel
+        let percent = max(0, Int(level * 100))
+        return (percent, UIDevice.current.batteryState)
+    }
+    
+    /// Raw free space in bytes
+    func freeDiskSpaceBytes() -> Int64 {
+        do {
+            let attrs = try FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
+            if let free = attrs[.systemFreeSize] as? NSNumber {
+                return free.int64Value
+            }
+        } catch {
+            print("⚠️ Failed to get free disk space: \(error)")
+        }
+        return 0
+    }
+    /// Human-readable + simple warning
+    func storageStatusSummary() -> String {
+        let freeBytes = freeDiskSpaceBytes()
+        let readable = ByteCountFormatter.readableSize(from: freeBytes)
+
+        // e.g. warn if less than 2 GB
+        let lowThreshold: Int64 = 2 * 1024 * 1024 * 1024
+
+        if freeBytes == 0 {
+            return "Storage: unknown"
+        } else if freeBytes < lowThreshold {
+            return "\(readable) ⚠️ Low storage"
+        } else {
+            return "\(readable) free"
+        }
+    }
+
+    func batteryStatusSummary() -> String {
+        let b = batteryReadout()
+
+        switch b.state {
+        case .charging:
+            return "\(b.percent)% ⚡️"
+        case .full:
+            return "\(b.percent)% 🔋"
+        case .unplugged:
+            if b.percent <= 20 {
+                return "\(b.percent)% ❗️Low Battery"
+            } else if b.percent <= 35 {
+                return "\(b.percent)% ⚠️"
+            } else {
+                return "\(b.percent)%"
+            }
+        default:
+            return "\(b.percent)%"
+        }
+    }
+    
+    func batteryStatusSummaryInt() -> Int {
+        let b = batteryReadout()
+
+        return b.percent
+    }
 
     // MARK: - Init
 
     override init() {
         super.init()
 
+        UIDevice.current.isBatteryMonitoringEnabled = true
+        
         // Restore last LUT preset
         if let raw = UserDefaults.standard.string(forKey: "LUTPreset"),
            let preset = LUTPreset(rawValue: raw) {
@@ -1892,3 +1955,11 @@ extension CameraController {
     }
 }
 
+extension ByteCountFormatter {
+    static func readableSize(from bytes: Int64) -> String {
+        let f = ByteCountFormatter()
+        f.allowedUnits = [.useGB, .useMB]
+        f.countStyle = .file
+        return f.string(fromByteCount: bytes)
+    }
+}

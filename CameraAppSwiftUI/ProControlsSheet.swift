@@ -11,11 +11,56 @@ struct ProControlsSheet: View {
     @Binding var isZenMode: Bool
     
     @Environment(\.dismiss) private var dismiss
+    
+    
+    var batterySymbolName: String {
+        let percent = controller.batteryStatusSummaryInt()
+
+        let bucket: Int
+        switch percent {
+        case ..<15:
+            bucket = 0
+        case ..<40:
+            bucket = 25
+        case ..<65:
+            bucket = 50
+        case ..<90:
+            bucket = 75
+        default:
+            bucket = 100
+        }
+
+        return "battery.\(bucket)"
+    }
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 16) {
+                    HStack(spacing: 8) {
+                        Label {
+                            Text(controller.batteryStatusSummary())
+                                .lineLimit(1)
+                        } icon: {
+                            Image(systemName: batterySymbolName)
+                        }
+
+                        Divider()
+                            .frame(height: 12)
+
+                        Label {
+                            Text(controller.storageStatusSummary())
+                                .lineLimit(1)
+                        } icon: {
+                            Image(systemName: "externaldrive")
+                        }
+                    }
+                    .font(.caption2)
+                    .padding(.horizontal, 10)
+                    .padding(.vertical, 6)
+                    .background(.black.opacity(0.4))
+                    .clipShape(Capsule())
+                    .foregroundStyle(.white)
                     WhiteBalanceSection(controller: controller)
                     ExposureSection(controller: controller)
                     FocusSection(controller: controller)

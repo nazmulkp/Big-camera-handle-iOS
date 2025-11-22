@@ -261,6 +261,7 @@ struct MinimalBottomControlsView: View {
     private var statusAndReadoutsRow: some View {
         HStack(spacing: 12) { // Increased spacing
             // Status indicator
+            
             let (statusColor, statusText): (Color, String) = {
                 if controller.mode == .video && controller.isRecording {
                     return (.red, "REC \(controller.recordingDurationString())")
