@@ -318,8 +318,7 @@ struct MinimalBottomControlsView: View {
             if isLeftHandedLayout {
                 shutterButton
                     .padding(.leading,20)
-                    .disabled(controller.mode == .photo)
-                takePhoto
+                modeToggleButton
                     .padding(.horizontal,22)
                 switchCamera
                     .padding(.horizontal,22)
@@ -332,11 +331,10 @@ struct MinimalBottomControlsView: View {
                 
                 proControlsButton
                 // Camera switch button (front/back)
-                takePhoto
+                modeToggleButton
                     .padding(.leading,22)
                 Spacer()
                 shutterButton
-                    .disabled(controller.mode == .photo)
                 Spacer()
                 switchCamera
                     .padding(.trailing,22)
@@ -346,16 +344,21 @@ struct MinimalBottomControlsView: View {
     }
     
     
-    private var takePhoto:some View {
-        // More prominent quick photo button
+    private var modeToggleButton: some View {
         Button {
-            if !controller.isRecording {
-                controller.mode = .photo
-                
-                controller.triggerPhotoCapture()
+            // Don’t allow mode changes while recording
+            guard !controller.isRecording else { return }
+
+            withAnimation(.easeInOut(duration: 0.2)) {
+                // Toggle between photo and video
+                controller.mode = (controller.mode == .photo) ? .video : .photo
             }
+            
         } label: {
-            Image(systemName: "camera.fill")
+            // Icon shows the *other* mode (what will happen when tapped)
+            let isVideoMode = (controller.mode == .video)
+
+            Image(systemName: isVideoMode ? "camera.fill" : "video.fill")
                 .font(.system(size: 20, weight: .semibold))
                 .foregroundStyle(controller.isRecording ? .gray : .white)
                 .frame(width: 44, height: 44)
@@ -368,6 +371,7 @@ struct MinimalBottomControlsView: View {
         }
         .disabled(controller.isRecording)
     }
+
     
     private var switchCamera:some View {
         Button {

@@ -58,7 +58,11 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     }()
 
     
-    @Published var mode: CaptureMode = .video
+    @Published var mode: CaptureMode = .video {
+        didSet{
+            print("calling ...")
+        }
+    }
     // Use a dedicated context for LUT rendering & saving (MainActor only)
     //let lutContext = CIContext()
 
@@ -1566,7 +1570,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
                            print("❌ Failed to save to Photos: \(String(describing: error))")
                        } else {
                            print("✅ Saved photo to Photos as \(format.rawValue)")
-                           self.mode = .video     // ✅ now on main thread / main actor
+//                           self.mode = .video     // ✅ now on main thread / main actor
                        }
                    }
             }
