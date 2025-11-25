@@ -8,6 +8,7 @@
 import SwiftUI
 
 import SwiftUI
+import StoreKit
 
 // MARK: - Model
 
@@ -136,6 +137,24 @@ struct EasyCameraHomeView: View {
             // This is your existing camera screen
             CameraRootView()
               //  .ignoresSafeArea()
+        }
+        .onAppear {
+            handleRating()
+        }
+    }
+    
+    private func handleRating() {
+        if TStorage.shouldRated == 4 {
+            rateApp()
+            TStorage.shouldRated += 1
+        } else if TStorage.shouldRated < 10 {
+            TStorage.shouldRated += 1
+        }
+    }
+    
+    func rateApp() {
+        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+            SKStoreReviewController.requestReview(in: scene)
         }
     }
 }
@@ -582,7 +601,7 @@ struct SettingsView: View {
             .navigationTitle("Settings")
             .sheet(isPresented: $showMessageComposer) {
                 MessageComposer(
-                    recipients: [phoneNumber],
+                    recipients: [email],
                     body: "Hi Sohag,\n\nI am using Easy camara and…"
                 )
             }
