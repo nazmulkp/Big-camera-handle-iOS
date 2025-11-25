@@ -84,7 +84,7 @@ struct EasyCameraHomeView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Open Pro Camera")
                                         .font(.headline)
-                                    Text("Start shooting with Easy camara")
+                                    Text("Start shooting with Easy camera")
                                         .font(.caption)
                                         .opacity(0.8)
                                 }
@@ -105,7 +105,7 @@ struct EasyCameraHomeView: View {
                     .background(.ultraThinMaterial)
                 }
                 .listStyle(.plain)
-                .navigationTitle("Easy camara")
+                .navigationTitle("Easy camera")
                 .toolbar {
                     // Optional: small camera icon in the top bar
                     ToolbarItem(placement: .topBarTrailing) {
@@ -587,7 +587,7 @@ struct SettingsView: View {
                     HStack {
                         Text("App")
                         Spacer()
-                        Text("Easy camara")
+                        Text("Easy camera")
                             .foregroundColor(.secondary)
                     }
                     HStack {
@@ -602,7 +602,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showMessageComposer) {
                 MessageComposer(
                     recipients: [email],
-                    body: "Hi Sohag,\n\nI am using Easy camara and…"
+                    body: "Hi Sohag,\n\nI am using Easy camera and…"
                 )
             }
             .alert("Messages not available", isPresented: $showMessageErrorAlert) {
@@ -632,8 +632,8 @@ struct SettingsView: View {
     }
 
     private func sendEmail() {
-        let subject = "Easy camara feedback"
-        let body = "Hi Sohag,\n\nI am using Easy camara and…"
+        let subject = "Easy camera feedback"
+        let body = "Hi Sohag,\n\nI am using Easy camera and…"
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 
