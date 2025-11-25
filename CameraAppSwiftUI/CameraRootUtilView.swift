@@ -147,56 +147,61 @@ struct QuickActionButton: View {
 struct ZoomControlBar: View {
     @ObservedObject var controller: CameraController
 
-    // Target zoom factors we *want* for each preset
-    private let ultraWideZoom: CGFloat = 0.5
-    private let wideZoom: CGFloat      = 1.0
-    private let teleZoom: CGFloat      = 2.0
+    // dynamic presets from controller
+    private var ultraPreset: CGFloat { controller.zoomMin }
+    private var widePreset: CGFloat  { 1.0 }
+    private var telePreset: CGFloat  { min(2.0, controller.zoomMax) }
+
+    private var presets: [CGFloat] { [ultraPreset, widePreset, telePreset] }
 
     /// Index of the preset that is currently closest to the real zoom factor
     private var selectedPresetIndex: Int {
         let current = controller.zoomFactor
-        let presets: [CGFloat] = [ultraWideZoom, wideZoom, teleZoom]
 
-        // find the index with minimal distance to current zoom
         let (index, _) = presets
             .enumerated()
             .min(by: { abs($0.element - current) < abs($1.element - current) })
-        ?? (1, wideZoom)   // default to 1x
+        ?? (1, widePreset)
 
         return index
     }
 
-    private var isUltraWideSelected: Bool { selectedPresetIndex == 0 }
-    private var isWideSelected: Bool      { selectedPresetIndex == 1 }
-    private var isTeleSelected: Bool      { selectedPresetIndex == 2 }
+    // Small tolerance so you don’t need *exact* match
+    private func isPresetSelected(_ preset: CGFloat) -> Bool {
+        abs(controller.zoomFactor - preset) < 0.05
+    }
 
     var body: some View {
         VStack(spacing: 8) {
             HStack(spacing: 12) {
-//                ZoomPresetButton(
-//                    label: "0.5x",
-//                    isSelected: isUltraWideSelected,
-//                    action: {
-//                        print("Setting zoom to 0.5x")
-//                        controller.setZoomPreset(ultraWideZoom)
-//                    }
-//                )
+
+                // Only show ultra if it’s actually < 1x
+                if ultraPreset < 0.95 {
+                    ZoomPresetButton(
+                        label: String(format: "%.1fx", ultraPreset),
+                        isSelected: isPresetSelected(ultraPreset),
+                        action: {
+                            print("Setting zoom to \(ultraPreset)x")
+                            controller.setZoomPreset(ultraPreset)
+                        }
+                    )
+                }
 
                 ZoomPresetButton(
                     label: "1x",
-                    isSelected: isWideSelected,
+                    isSelected: isPresetSelected(widePreset),
                     action: {
                         print("Setting zoom to 1.0x")
-                        controller.setZoomPreset(wideZoom)
+                        controller.setZoomPreset(widePreset)
                     }
                 )
 
                 ZoomPresetButton(
                     label: "2x",
-                    isSelected: isTeleSelected,
+                    isSelected: isPresetSelected(telePreset),
                     action: {
                         print("Setting zoom to 2.0x")
-                        controller.setZoomPreset(teleZoom)
+                        controller.setZoomPreset(telePreset)
                     }
                 )
 
@@ -204,7 +209,6 @@ struct ZoomControlBar: View {
                     value: Binding(
                         get: { controller.zoomSliderValue },
                         set: {
-                            print("Slider value: \($0)")
                             controller.updateZoomSlider($0)
                         }
                     ),
@@ -216,7 +220,6 @@ struct ZoomControlBar: View {
         .font(.caption)
     }
 }
-
 
 struct ZoomPresetButton: View {
     let label: String

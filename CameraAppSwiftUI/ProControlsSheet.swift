@@ -64,6 +64,7 @@ struct ProControlsSheet: View {
                     WhiteBalanceSection(controller: controller)
                     ExposureSection(controller: controller)
                     FocusSection(controller: controller)
+                    LensSection(controller: controller)      // 👈 NEW
                     FormatSection(controller: controller)
                     VideoSection(controller: controller)
                     LUTSection(controller: controller) 
@@ -888,3 +889,51 @@ struct LUTSection: View {
         }
     }
 }
+
+struct LensSection: View {
+    @ObservedObject var controller: CameraController
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            SectionHeader(title: "Lens")
+
+            HStack(spacing: 0) {
+                ForEach(controller.availableBackCameras) { lens in
+                    Button(action: {
+                        controller.setBackCamera(lens)
+                    }) {
+                        Text(lens.label)
+                            .font(.system(size: 14, weight: .medium))
+                            .padding(.vertical, 8)
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                controller.activeBackCamera == lens
+                                ? Color.blue
+                                : Color.gray.opacity(0.3)
+                            )
+                            .foregroundColor(
+                                controller.activeBackCamera == lens
+                                ? .white
+                                : .white.opacity(0.8)
+                            )
+                    }
+                    .buttonStyle(PlainButtonStyle())
+                    .disabled(controller.isRecording)   // 🔒 disabled during recording
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 8))
+            .overlay(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(Color.white.opacity(0.2), lineWidth: 1)
+            )
+
+            if controller.isRecording {
+                Text("Stop recording to switch lenses.")
+                    .font(.caption2)
+                    .foregroundStyle(.white.opacity(0.6))
+            }
+        }
+    }
+}
+
+

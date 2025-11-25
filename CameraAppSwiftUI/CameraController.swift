@@ -33,6 +33,25 @@ fileprivate let histogramCIContext: CIContext = {
 @MainActor
 final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     
+//    // Zoom
+//    @Published var zoomSliderValue: Double = 0.0      // 0...1
+//    @Published var zoomFactor: CGFloat = 1.0          // actual device zoom
+    // Zoom ranges
+//    private var minZoomFactor: CGFloat = 1.0
+//    private var maxZoomFactor: CGFloat = 6.0
+    
+    // Zoom
+    @Published var zoomSliderValue: Double = 0.0
+    @Published var zoomFactor: CGFloat = 1.0
+
+    private var minZoomFactor: CGFloat = 1.0
+    private var maxZoomFactor: CGFloat = 6.0
+
+    // Public read-only access
+    var zoomMin: CGFloat { minZoomFactor }
+    var zoomMax: CGFloat { maxZoomFactor }
+
+    
     // MainActor context for UI operations
     @MainActor
     private lazy var mainCIContext: CIContext = {
@@ -182,9 +201,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     // Histogram (for HUD)
     @Published var histogramBins: [CGFloat] = Array(repeating: 0, count: 64)
 
-    // Zoom
-    @Published var zoomSliderValue: Double = 0.0      // 0...1
-    @Published var zoomFactor: CGFloat = 1.0          // actual device zoom
+
 
     // Video recording
     @Published var isRecording = false
@@ -220,10 +237,16 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     private let minTint: Float = -150
     private let maxTint: Float = 150
 
-    // Zoom ranges
-    private var minZoomFactor: CGFloat = 1.0
-    private var maxZoomFactor: CGFloat = 6.0
+
     private let baseFocalLengthMM: Double = 24.0   // approx wide angle base
+    
+    // Back camera lenses
+    @Published var activeBackCamera: BackCameraLens = .wide
+    @Published var availableBackCameras: [BackCameraLens] = []
+
+    private var backUltraWideDevice: AVCaptureDevice?
+    private var backWideDevice: AVCaptureDevice?
+    private var backTeleDevice: AVCaptureDevice?
 
     // Track current capture format for saving
     private var currentCaptureFormat: PhotoFormat = .heif
@@ -242,6 +265,15 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
         let percent = max(0, Int(level * 100))
         return (percent, UIDevice.current.batteryState)
     }
+    
+    private func deviceForBackLens(_ lens: BackCameraLens) -> AVCaptureDevice? {
+        switch lens {
+        case .ultraWide: return backUltraWideDevice
+        case .wide:      return backWideDevice
+        case .tele:      return backTeleDevice
+        }
+    }
+
     
     /// Raw free space in bytes
     func freeDiskSpaceBytes() -> Int64 {
@@ -368,19 +400,56 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
                 // Remove existing inputs
                 self.session.inputs.forEach { self.session.removeInput($0) }
 
-                // Video input with fallback
-                guard let device = AVCaptureDevice.default(
-                    .builtInWideAngleCamera,
-                    for: .video,
+                // Discover back camera lenses (ultra-wide / wide / tele)
+                let backDiscovery = AVCaptureDevice.DiscoverySession(
+                    deviceTypes: [
+                        .builtInUltraWideCamera,
+                        .builtInWideAngleCamera,
+                        .builtInTelephotoCamera
+                    ],
+                    mediaType: .video,
                     position: .back
-                ) else {
-                    throw NSError(domain: "CameraController", code: 1, userInfo: [NSLocalizedDescriptionKey: "No camera found"])
+                )
+
+                self.backUltraWideDevice = backDiscovery.devices.first(where: { $0.deviceType == .builtInUltraWideCamera })
+                self.backWideDevice      = backDiscovery.devices.first(where: { $0.deviceType == .builtInWideAngleCamera })
+                self.backTeleDevice      = backDiscovery.devices.first(where: { $0.deviceType == .builtInTelephotoCamera })
+
+                var backOptions: [BackCameraLens] = []
+                if self.backUltraWideDevice != nil { backOptions.append(.ultraWide) }
+                if self.backWideDevice      != nil { backOptions.append(.wide) }
+                if self.backTeleDevice      != nil { backOptions.append(.tele) }
+
+                // Publish to UI on main actor
+                Task { @MainActor in
+                    self.availableBackCameras = backOptions
+                    if !backOptions.isEmpty && !backOptions.contains(self.activeBackCamera) {
+                        // Prefer wide if it exists, otherwise first available
+                        self.activeBackCamera = backOptions.contains(.wide) ? .wide : backOptions[0]
+                    }
+                }
+
+                // Pick initial back device based on activeBackCamera (fallback to wide / any)
+                guard let device = self.deviceForBackLens(self.activeBackCamera)
+                    ?? self.backWideDevice
+                    ?? backDiscovery.devices.first
+                else {
+                    throw NSError(
+                        domain: "CameraController",
+                        code: 1,
+                        userInfo: [NSLocalizedDescriptionKey: "No camera found"]
+                    )
                 }
 
                 let input = try AVCaptureDeviceInput(device: device)
                 guard self.session.canAddInput(input) else {
-                    throw NSError(domain: "CameraController", code: 2, userInfo: [NSLocalizedDescriptionKey: "Cannot add camera input"])
+                    throw NSError(
+                        domain: "CameraController",
+                        code: 2,
+                        userInfo: [NSLocalizedDescriptionKey: "Cannot add camera input"]
+                    )
                 }
+
                 self.session.addInput(input)
                 self.videoDeviceInput = input
 
@@ -1310,11 +1379,15 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     }
 
     func setZoomPreset(_ factor: CGFloat) {
-        let clamped = max(minZoomFactor, min(factor, maxZoomFactor))
-        let sliderVal = sliderValue(forZoom: clamped)
-        zoomSliderValue = sliderVal
-        scheduleZoomUpdate()
+        let minZ = zoomMin
+        let maxZ = zoomMax
+        let clamped = max(minZ, min(factor, maxZ))
+
+        zoomFactor = clamped
+        zoomSliderValue = sliderValue(forZoom: clamped)
+        scheduleZoomUpdate()   // or applyZoomSettings()
     }
+
 
     func applyZoomSettings() {
         let factor = zoomFactor(fromSlider: zoomSliderValue)
@@ -1966,4 +2039,60 @@ extension ByteCountFormatter {
         f.countStyle = .file
         return f.string(fromByteCount: bytes)
     }
+}
+
+extension CameraController {
+    func setBackCamera(_ lens: BackCameraLens) {
+        // 🔒 Don't allow lens changes while recording
+        guard !isRecording else { return }
+
+        sessionQueue.async { [weak self] in
+            guard let self = self,
+                  let currentInput = self.videoDeviceInput,
+                  currentInput.device.position == .back else {
+                return
+            }
+
+            guard let targetDevice = self.deviceForBackLens(lens),
+                  targetDevice != currentInput.device else {
+                return
+            }
+
+            do {
+                let newVideoInput = try AVCaptureDeviceInput(device: targetDevice)
+
+                self.session.beginConfiguration()
+                self.session.removeInput(currentInput)
+
+                guard self.session.canAddInput(newVideoInput) else {
+                    // Roll back
+                    self.session.addInput(currentInput)
+                    self.session.commitConfiguration()
+                    print("❌ Cannot add new back camera input")
+                    return
+                }
+
+                self.session.addInput(newVideoInput)
+                self.videoDeviceInput = newVideoInput
+
+                // Update ranges (ISO / shutter / zoom) for the new device
+                try self.configureDeviceRanges()
+
+                self.session.commitConfiguration()
+
+                DispatchQueue.main.async {
+                    self.activeBackCamera = lens
+                    // Re-apply controls for the new device
+                    self.applyExposureSettings()
+                    self.applyFocusSettings()
+                    self.applyWhiteBalanceSettings()
+                    self.applyZoomSettings()
+                }
+            } catch {
+                self.session.commitConfiguration()
+                print("❌ Failed to switch back camera: \(error)")
+            }
+        }
+    }
+
 }

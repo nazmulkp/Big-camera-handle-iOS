@@ -5,6 +5,25 @@
 //  Created by Md Nazmul Hasan on 11/21/25.
 //
 
+// MARK: - Back camera lenses
+
+enum BackCameraLens: String, CaseIterable, Identifiable {
+    case ultraWide
+    case wide
+    case tele
+
+    var id: String { rawValue }
+
+    var label: String {
+        switch self {
+        case .ultraWide: return "0.5x"
+        case .wide:      return "1x"
+        case .tele:      return "2x"
+        }
+    }
+}
+
+
 enum VideoResolution: String, CaseIterable, Identifiable {
     case res720p
     case res1080p
