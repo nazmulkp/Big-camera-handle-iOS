@@ -10,6 +10,7 @@ import SwiftUI
 import SwiftUI
 import StoreKit
 
+
 // MARK: - Model
 
 struct BlogPost: Identifiable, Codable {
@@ -52,6 +53,7 @@ final class BlogStore: ObservableObject {
 struct EasyCameraHomeView: View {
     @StateObject private var blogStore = BlogStore()
     @State private var showCamera = false
+    @State private var showPermision = false
     @State private var showSetting = false
 
     var body: some View {
@@ -77,7 +79,17 @@ struct EasyCameraHomeView: View {
                     VStack(spacing: 8) {
                         Divider()
                         Button {
-                            showCamera = true
+                            let cameraAuth = AVCaptureDevice.authorizationStatus(for: .video)
+                            let micAuth = AVAudioSession.sharedInstance().recordPermission
+
+                            if cameraAuth == .authorized && micAuth == .granted {
+                                //state = .granted
+                                showCamera = true
+                            } else {
+                               // state = .needRequest
+                                showPermision = true
+                            }
+                           
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: "camera.fill")
@@ -138,6 +150,11 @@ struct EasyCameraHomeView: View {
             CameraRootView()
               //  .ignoresSafeArea()
         }
+        .sheet(isPresented: $showPermision) {
+            // This is your existing camera screen
+            PermissionGateView()
+              //  .ignoresSafeArea()
+        }
         .onAppear {
             handleRating()
         }
@@ -193,6 +210,8 @@ struct BlogRow: View {
 }
 
 import SwiftUI
+import AVFAudio
+import AVFoundation
 
 struct BlogDetailView: View {
     let post: BlogPost
@@ -549,133 +568,3 @@ struct UltimateBodyText: View {
     }
 }
 
-import SwiftUI
-import MessageUI
-
-struct SettingsView: View {
-    private let phoneNumber = "+8801904993197"
-    private let email = "sohagswift@gmail.com"
-
-    @State private var showMessageComposer = false
-    @State private var showMessageErrorAlert = false
-
-    var body: some View {
-        NavigationStack {
-            List {
-                Section("Contact the Developer") {
-
-                    Button {
-                        openWhatsApp()
-                    } label: {
-                        Label("Chat on WhatsApp", systemImage: "message.circle.fill")
-                    }
-
-                    Button {
-                        sendEmail()
-                    } label: {
-                        Label("Email: \(email)", systemImage: "envelope.fill")
-                    }
-
-                    Button {
-                        openIMessageComposer()
-                    } label: {
-                        Label("iMessage / SMS", systemImage: "bubble.left.and.bubble.right.fill")
-                    }
-                }
-
-                Section("About") {
-                    HStack {
-                        Text("App")
-                        Spacer()
-                        Text("Easy camera")
-                            .foregroundColor(.secondary)
-                    }
-                    HStack {
-                        Text("Version")
-                        Spacer()
-                        Text("1.0")
-                            .foregroundColor(.secondary)
-                    }
-                }
-            }
-            .navigationTitle("Settings")
-            .sheet(isPresented: $showMessageComposer) {
-                MessageComposer(
-                    recipients: [email],
-                    body: "Hi Sohag,\n\nI am using Easy camera and…"
-                )
-            }
-            .alert("Messages not available", isPresented: $showMessageErrorAlert) {
-                Button("OK", role: .cancel) {}
-            } message: {
-                Text("This device cannot send messages.")
-            }
-        }
-    }
-
-    // MARK: - Helpers
-
-    private func open(url: URL) {
-        UIApplication.shared.open(url, options: [:], completionHandler: nil)
-    }
-
-    private func openWhatsApp() {
-        if let url = URL(string: "whatsapp://send?phone=\(phoneNumber.replacingOccurrences(of: "+", with: ""))"),
-           UIApplication.shared.canOpenURL(url) {
-            open(url: url)
-            return
-        }
-
-        if let url = URL(string: "https://wa.me/\(phoneNumber.replacingOccurrences(of: "+", with: ""))") {
-            open(url: url)
-        }
-    }
-
-    private func sendEmail() {
-        let subject = "Easy camera feedback"
-        let body = "Hi Sohag,\n\nI am using Easy camera and…"
-        let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-
-        if let url = URL(string: "mailto:\(email)?subject=\(encodedSubject)&body=\(encodedBody)") {
-            open(url: url)
-        }
-    }
-
-    private func openIMessageComposer() {
-        if MFMessageComposeViewController.canSendText() {
-            showMessageComposer = true
-        } else {
-            showMessageErrorAlert = true
-        }
-    }
-}
-
-
-struct MessageComposer: UIViewControllerRepresentable {
-    let recipients: [String]
-    let body: String
-
-    class Coordinator: NSObject, MFMessageComposeViewControllerDelegate {
-        func messageComposeViewController(
-            _ controller: MFMessageComposeViewController,
-            didFinishWith result: MessageComposeResult
-        ) {
-            controller.dismiss(animated: true)
-        }
-    }
-
-    func makeCoordinator() -> Coordinator {
-        Coordinator()
-    }
-
-    func makeUIViewController(context: Context) -> MFMessageComposeViewController {
-        let vc = MFMessageComposeViewController()
-        vc.messageComposeDelegate = context.coordinator
-        vc.recipients = recipients
-        vc.body = body
-        return vc
-    }
-
-    func updateUIViewController(_ uiViewController: MFMessageComposeViewController, context: Context) {}
-}

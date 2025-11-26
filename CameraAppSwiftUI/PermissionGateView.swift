@@ -82,15 +82,33 @@ final class PermissionViewModel: ObservableObject {
     }
 }
 
+
+
 struct PermissionGateView: View {
     @StateObject private var vm = PermissionViewModel()
-
+    @Environment(\.dismiss) private var dismiss
     var body: some View {
         Group {
             switch vm.state {
             case .granted:
-                // ✅ All good → show camera
-                CameraRootView()
+                Text("Thanks for downloading Easy Pro Camera! Enjoy capturing your favorite moments, and help us improve by sharing your experience through ratings, reviews, or messages. Reach out anytime if you have issues or feature ideas.")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+                
+                Button {
+                    dismiss()
+                           } label: {
+                               Text("Dismiss")
+                                   .font(.headline)
+                                   .padding(.horizontal, 24)
+                                   .padding(.vertical, 8)
+                                   .background(Color.white)
+                                   .foregroundStyle(.black)
+                                   .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                           }
+                    
 
             case .checking, .requesting, .needRequest, .denied:
                 PermissionExplanationScreen(
@@ -156,7 +174,7 @@ struct PermissionExplanationScreen: View {
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
 
-                    Text("To start shooting with Moment Pro Camera II, we need access to your camera and microphone.")
+                    Text("To start shooting with Easy Pro Camera, App need access to your camera and microphone.")
                         .font(.body)
                         .foregroundStyle(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
@@ -179,6 +197,7 @@ struct PermissionExplanationScreen: View {
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.85))
                     }
+
                 }
                 .padding(.horizontal, 32)
 
@@ -199,6 +218,7 @@ struct PermissionExplanationScreen: View {
                             .foregroundStyle(.white.opacity(0.6))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
+                        
                     }
                     .padding(.top, 4)
                 }
@@ -237,15 +257,21 @@ struct PermissionExplanationScreen: View {
                         .disabled(state == .requesting)
                     }
 
-                    Button {
-                        // Optional: later add "Learn more" / privacy link
-                    } label: {
-                        Text("Why we need these permissions")
-                            .font(.footnote)
-                            .foregroundStyle(.white.opacity(0.6))
-                            .underline(false)
-                    }
-                    .padding(.bottom, 20)
+                    
+                    Text("Your photos and videos remain private on your device. We don’t access, upload, or store them.")
+                        .font(.footnote)
+                        .foregroundStyle(.white.opacity(0.6))
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 24)
+//                    Button {
+//                        // Optional: later add "Learn more" / privacy link
+//                    } label: {
+//                        Text("Why we need these permissions")
+//                            .font(.footnote)
+//                            .foregroundStyle(.white.opacity(0.6))
+//                            .underline(false)
+//                    }
+//                    .padding(.bottom, 20)
                 }
             }
         }
