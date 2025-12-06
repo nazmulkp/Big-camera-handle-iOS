@@ -96,7 +96,7 @@ struct EasyCameraHomeView: View {
                                 VStack(alignment: .leading, spacing: 2) {
                                     Text("Open Pro Camera")
                                         .font(.headline)
-                                    Text("Start shooting with Easy camera")
+                                    Text("Start shooting with Air Camera")
                                         .font(.caption)
                                         .opacity(0.8)
                                 }
@@ -117,7 +117,7 @@ struct EasyCameraHomeView: View {
                     .background(.ultraThinMaterial)
                 }
                 .listStyle(.plain)
-                .navigationTitle("Easy camera")
+                .navigationTitle("Air Camera")
                 .toolbar {
                     // Optional: small camera icon in the top bar
                     ToolbarItem(placement: .topBarTrailing) {

@@ -45,7 +45,7 @@ struct SettingsView: View {
                     Button {
                         openAppStoreReview()
                     } label: {
-                        Label("Rate Easy camera on the App Store", systemImage: "star.fill")
+                        Label("Rate Air Camera on the App Store", systemImage: "star.fill")
                     }
                 }
 
@@ -53,7 +53,7 @@ struct SettingsView: View {
                     HStack {
                         Text("App")
                         Spacer()
-                        Text("Easy camera")
+                        Text("Air Camera")
                             .foregroundColor(.secondary)
                     }
                     HStack {
@@ -68,7 +68,7 @@ struct SettingsView: View {
             .sheet(isPresented: $showMessageComposer) {
                 MessageComposer(
                     recipients: [email],
-                    body: "Hi Sohag,\n\nI am using Easy camera and…"
+                    body: "Hi Sohag,\n\nI am using Air Camera and…"
                 )
             }
             .alert("Messages not available", isPresented: $showMessageErrorAlert) {
@@ -98,8 +98,8 @@ struct SettingsView: View {
     }
 
     private func sendEmail() {
-        let subject = "Easy camera feedback"
-        let body = "Hi Sohag,\n\nI am using Easy camera and…"
+        let subject = "Air Camera feedback"
+        let body = "Hi Sohag,\n\nI am using Air Camera and…"
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = body.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
 

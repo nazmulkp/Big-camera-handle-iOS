@@ -33,6 +33,8 @@ fileprivate let histogramCIContext: CIContext = {
 @MainActor
 final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutputSampleBufferDelegate {
     
+    @Published var isFrontCameraActive: Bool = false
+
 //    // Zoom
 //    @Published var zoomSliderValue: Double = 0.0      // 0...1
 //    @Published var zoomFactor: CGFloat = 1.0          // actual device zoom
@@ -1802,11 +1804,36 @@ extension CameraController: AVCaptureVideoDataOutputSampleBufferDelegate {
             self.updatePreviewImage(with: ciImage)
         }
     }
+    
+    private func updatePreviewMirroring(for position: AVCaptureDevice.Position) {
+        guard let connection = videoDataOutput.connection(with: .video) else { return }
+
+        if connection.isVideoMirroringSupported {
+            connection.automaticallyAdjustsVideoMirroring = false
+            connection.isVideoMirrored = (position == .front)
+        }
+    }
+
 
     @MainActor
     private func updatePreviewImage(with ciImage: CIImage) {
         var processedImage = ciImage
         
+        if isFrontCameraActive {
+            // Flip horizontally AND correct orientation
+            let extent = processedImage.extent
+            
+            // 1) Flip horizontally
+            var t = CGAffineTransform(scaleX: -1, y: 1)
+            t = t.translatedBy(x: -extent.width, y: 0)
+            
+            // 2) Rotate 180° if needed
+            // (your feed is upside-down because of sample buffer orientation)
+            t = t.rotated(by: .pi)
+            
+            // 3) Apply transform
+            processedImage = processedImage.transformed(by: t)
+        }
         // Apply LUT if enabled
         if self.lutPreset != .none && self.lutIntensity > 0.001 {
             processedImage = self.applyCurrentLUT(to: processedImage)
@@ -1967,6 +1994,12 @@ extension CameraController {
                 print("❌ Unable to get camera device for position: \(newPosition)")
                 return
             }
+            
+            let isFront = (newCamera.position == .front)
+            Task { @MainActor in
+                self.isFrontCameraActive = isFront
+            }
+
             
             do {
                 let newVideoInput = try AVCaptureDeviceInput(device: newCamera)
