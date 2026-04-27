@@ -1,0 +1,72 @@
+[
+  {
+    "id": 1,
+    "title": "开始使用 Air Camera",
+    "subtitle": "用 5 分钟了解基础控制和界面布局。",
+    "readTime": 5,
+    "body": "# 欢迎使用 Air Camera！🌟\n\n在这篇入门指南中，你将了解 App 的基本布局，几分钟内就能开始拍出更好的照片和视频。\n\n---\n\n## 🏠 首页概览\n\n打开 Air Camera 后，你首先会看到 **首页**：\n\n• **指南库** - 一组简短指南，就像这篇一样  \n• **Pro Camera 按钮** - 底部按钮，用来开始拍摄  \n\n> 💡 你可以随时阅读指南，然后点击 **Open Pro Camera**，用刚学到的设置开始拍摄。\n\n---\n\n## 📷 相机界面说明\n\n打开相机后，你会看到：\n\n• **Live Preview** - 中央的实时画面预览  \n• **Shutter Button** - 用于拍摄的大按钮  \n• **Control Panel** - 用于调整 resolution、frame rate 和 LUTs 的设置面板  \n\n---\n\n## 🎯 快速开始指南\n\n1. 将相机**对准**你的拍摄对象  \n2. **轻点**屏幕设置 focus 和曝光  \n3. 拍照时**按下** shutter  \n4. 拍视频时**点击** record  \n\n---\n\n## 🌟 Pro 习惯\n\n• 拍摄前清洁镜头  \n• 保持双手稳定  \n• 从多个角度拍摄  \n• 使用自然光  \n\n---\n\n**下一步**：“日光照片的最佳设置” →"
+  },
+  {
+    "id": 2,
+    "title": "掌握 Pro Controls",
+    "subtitle": "了解 white balance、曝光、focus 和视频选项。",
+    "readTime": 6,
+    "body": "# 掌握 Pro Controls 🎛️\n\nPro Controls 可以把 Air Camera 变成一台强大的手动相机。本指南会用简单的语言解释每个主要部分，让你知道自己在调整什么，以及为什么要调整。\n\n---\n\n## 🎨 White Balance (WB)\n\nWhite Balance 能让颜色看起来更自然。\n\n- **Auto** – 适合大多数场景；App 会自动选择。  \n- **Manual** – 当你想保持一致的画面风格时使用。\n\n可点击的预设：\n\n- **Day** – 户外阳光  \n- **Cloudy** – 增加一点暖色  \n- **Tungsten** – 修正偏黄的室内灯光  \n- **Fluoro** – 修正偏绿的荧光灯  \n\n> 💡 如果肤色看起来太蓝，把 temperature 向右移动。如果太橙或太黄，就向左移动。\n\n---\n\n## 🔆 曝光模式\n\n曝光控制画面的明暗。\n\n- **Auto** – 相机会自动选择 shutter 和 ISO。  \n- **M (Manual)** – 你手动选择 shutter speed 和 ISO。  \n- **S (Shutter Priority)** – 固定 shutter，ISO 自动调整。  \n- **ISO Mode** – 固定 ISO，shutter 自动调整。\n\n使用 **EV Compensation** 可以在不改变基础设置的情况下微调亮度。\n\n> ⭐ 从 Auto + EV 0.0 开始。如果画面太暗，把 EV 向右滑；太亮则向左滑。\n\n---\n\n## 🎯 Focus: AF vs MF\n\n- **AF (Auto Focus)** – 点击主体，App 会在那里对焦。非常适合日常使用。  \n- **MF (Manual Focus)** – 使用 slider 手动控制 focus，适合创意拍摄。\n\nManual Focus 特别适合：\n\n- 近距离细节  \n- 隔着物体拍摄，例如栅栏或树叶  \n- 视频中的平滑 focus pull\n\n---\n\n## 🗂️ 格式与质量\n\n- **JPEG / HEIF** – 适合直接分享的照片。HEIF 文件更小，同时保持高质量。  \n- **RAW / ProRAW** – 提供最大的后期编辑空间，适合高级用户。\n\n> 💡 如果不确定，选择 **HEIF**。\n\n---\n\n## 🎬 视频设置概览\n\nVideo 面板中的关键部分：\n\n- **Resolution** – 720p、1080p 或 4K  \n- **Frame Rate** – 24、30 或 60 fps  \n- **Codec** – H.264（兼容性）或 HEVC（更高质量 + 更小文件）  \n- **Color Profile** – SDR、HDR 或 Log  \n- **Bitrate** – Std、High、Max\n\n简单起步设置：\n\n- Resolution: **1080p**  \n- Frame rate: **30 fps**  \n- Codec: **HEVC**  \n- Color: **SDR**  \n- Bitrate: **High**\n\n---\n\n## 🎨 Looks / LUTs\n\nLooks 是即时色彩风格。\n\n- **None** – 干净、中性  \n- **Warm Classic** – 温暖舒适的色调  \n- **Soft Pastel** – 柔和、低对比度的画面  \n- **Cinematic Teal** – 电影感青橙色调\n\n使用 **Strength** slider 控制 look 的强度。\n\n> 💡 想要自然效果时，strength 保持在 30–60% 左右。\n\n---\n\n## 📊 监看工具\n\n你可以选择拍摄时显示哪些信息：\n\n- **Histogram** – 显示亮度分布  \n- **Waveform** – 更详细地显示亮度和颜色  \n- **Audio** – 实时声音电平\n\n学习时可以先保持 **Histogram** 开启。右侧出现很高的峰值，通常表示 highlights 可能 clipping。\n\n---\n\n## ✅ 简单 Pro 设置\n\n1. 将 **Resolution** 设为 1080p，**Frame Rate** 设为 30 fps。  \n2. 一开始先使用 **Auto** 曝光。  \n3. 打开 **Histogram**。  \n4. 选择 **Warm Classic** LUT，并将 strength 设为 40–50%。  \n5. 使用 **AF**，但在 close-up 时切换到 **MF**。\n\n---\n\n**下一步**：“日光照片的最佳设置” →"
+  },
+  {
+    "id": 3,
+    "title": "日光照片的最佳设置",
+    "subtitle": "适合明亮、自然照片的简单预设。",
+    "readTime": 5,
+    "body": "# 日光照片的最佳设置 ☀️\n\n日光是最容易掌握的光线。使用 Air Camera 的正确设置，你可以稳定拍出清晰、干净的照片。\n\n---\n\n## ✅ 推荐基础设置\n\n适用于大多数晴天或阴天的白天场景：\n\n- **White Balance**: Day 或 Cloudy，然后按需要微调  \n- **Exposure Mode**: Auto  \n- **EV Compensation**: 0.0  \n- **Focus**: AF  \n- **Format**: HEIF\n\n> 💡 如果天空看起来太亮，把 EV 稍微调到负值（–0.3 到 –0.7）。\n\n---\n\n## 👤 日光下拍人物\n\n- 让主体**朝向光线**，但不要直面强烈阳光。  \n- 使用 **Cloudy WB** 让肤色更暖。  \n- 点击脸部来设置 focus 和曝光。  \n- 如果背景太亮，稍微降低 EV。\n\n摆姿小技巧：\n\n- 让人物稍微侧身。  \n- 连拍 3–4 张，以捕捉自然表情。\n\n---\n\n## 🌄 风景与城市景观\n\n- 使用 **Day WB** 获得中性色彩。  \n- 将 EV 降到 **–0.3 或 –0.7**，让天空更有层次。  \n- 稳定握住手机，轻轻点击 shutter。\n\n构图建议：\n\n- 使用 **Grid** 选项，把地平线放在上三分之一或下三分之一处。  \n- 加入前景元素，比如树、栏杆或石头，增加画面深度。\n\n---\n\n## 🏃‍♂️ 日光下拍动作\n\n如果主体在移动，例如奔跑的孩子或街头场景：\n\n- 将 **Exposure Mode** 切换为 **S (Shutter Priority)**。  \n- 使用更快的 shutter，例如 1/500s 或更快。  \n- ISO 保持 Auto。\n\n这样可以保持动作清晰，同时让相机处理亮度。\n\n---\n\n## ☁️ 阴天或多云天气\n\n- 选择 **Cloudy WB** 增加暖度。  \n- 保持 **Auto Exposure**，EV 设为 0.0。  \n- 让人物远离深色背景，使主体更突出。\n\n---\n\n## 🔧 快速修正清单\n\n如果日光照片看起来：\n\n- **太亮** → 降低 EV 或移到阴影处。  \n- **太暗** → 稍微提高 EV。  \n- **太蓝** → 提高 WB temperature。  \n- **太黄** → 降低 WB temperature。\n\n---\n\n**下一步**：“如何拍摄电影感视频” →"
+  },
+  {
+    "id": 4,
+    "title": "如何拍摄电影感视频",
+    "subtitle": "把简单片段变成电影般的画面。",
+    "readTime": 6,
+    "body": "# 如何拍摄电影感视频 🎬\n\n电影感视频不只是靠昂贵设备，更重要的是平稳运动、良好光线和有意识的选择。Air Camera 提供了你需要的工具。\n\n---\n\n## ⚙️ 基础电影感设置\n\n从这些设置开始：\n\n- **Resolution**: 1080p 或 4K  \n- **Frame Rate**: 24 fps，带来电影般的感觉  \n- **Codec**: HEVC  \n- **Color Profile**: SDR，如果你会 color grade，也可以使用 Log  \n- **Bitrate**: High\n\n手持拍摄时打开 **Stabilization (Stab)**。\n\n---\n\n## 🔆 曝光与 White Balance\n\n- 使用 **S (Shutter Priority)**，将 shutter 设为大约 **1/48 或 1/50**（约为 frame rate 的两倍）。  \n- 让 ISO 自动调整。  \n- 手动设置 **White Balance**（Day / Cloudy / Tungsten），防止颜色漂移。\n\n> 💡 录制前锁定 WB，让不同 shots 之间颜色保持一致。\n\n---\n\n## 🎯 用 Focus 制造氛围\n\n- 简单视频可以保持 **AF** 打开，并点击主体。  \n- 想要电影感 focus pull 时，切换到 **MF**，缓慢把 slider 从前景移到背景。\n\n创意：\n\n- 从近处物体对焦到远处人物。  \n- 从虚焦开始，慢慢让主体进入清晰 focus。\n\n---\n\n## 🎨 添加轻微 Look\n\n用低 strength 使用 LUT：\n\n- **Warm Classic** 30–40%，适合柔和叙事。  \n- **Cinematic Teal** 30–50%，适合现代电影感。\n\n除非你想要非常风格化的画面，否则避免使用 100% strength。\n\n---\n\n## 🎥 运动技巧\n\n- **慢而稳**地移动；想象自己在漂浮，而不是走路。  \n- 用双手握持，并让手肘靠近身体。  \n- 尝试简单移动：push-in、pull-back 或横向滑动。\n\n> 💡 录制时轻轻呼气，可以减少抖动。\n\n---\n\n## 📚 用镜头序列拍摄\n\n不要只拍一段很长的视频，而是拍：\n\n1. **Wide shot** – 展示整个场景。  \n2. **Medium shot** – 清楚展示主体。  \n3. **Close-up** – 展示手、眼睛或物品细节。  \n\n把这些剪在一起，会马上更有电影感。\n\n---\n\n**下一步**：“理解 ISO、Shutter Speed 与曝光” →"
+  },
+  {
+    "id": 5,
+    "title": "理解 ISO、Shutter Speed 与曝光",
+    "subtitle": "获得正确曝光画面的三大基础。",
+    "readTime": 6,
+    "body": "# 理解 ISO、Shutter Speed 与曝光 📚\n\n曝光就是照片或视频看起来有多亮或多暗。在 Air Camera 中，主要由 **ISO**、**Shutter Speed** 和 **EV Compensation** 控制。\n\n---\n\n## 🔢 ISO\n\nISO 是传感器对光线的敏感度。\n\n- **低 ISO (30–100)** – 画面干净、噪点更少，但需要更多光线。  \n- **高 ISO (800–3000+)** – 适合较暗场景，但会增加颗粒/噪点。\n\n> 💡 在画面足够亮的前提下，尽量使用最低 ISO。\n\n---\n\n## ⏱️ Shutter Speed\n\nShutter speed 控制传感器**收集光线的时间**。\n\n- **快速 shutter** (1/500s, 1/1000s) – 冻结动作，但进光更少。  \n- **慢速 shutter** (1/30s, 1/15s) – 更多 motion blur，也获得更多光线。\n\n视频常用规则：\n\n- Shutter ≈ **1 / (2 × frame rate)**  \n  - 24 fps → 约 1/48 或 1/50  \n  - 30 fps → 约 1/60  \n  - 60 fps → 约 1/120\n\n这样可以得到更自然的运动效果。\n\n---\n\n## 🎚️ EV Compensation\n\nEV Compensation 是在相机建议曝光**之后**调整亮度。\n\n- **Positive EV (+)** – 画面更亮。  \n- **Negative EV (–)** – 画面更暗。\n\n在 Auto 模式下，与其频繁改 ISO 或 shutter，不如用 EV 微调。\n\n---\n\n## 🧠 它们如何配合\n\n可以这样理解：\n\n- ISO = 你的“眼睛”有多敏感。  \n- Shutter = 你的“眼睛睁开多久”。  \n- EV = 最终亮度的微调。\n\n修正偏暗照片：\n\n1. 如果主体没有快速移动，降低 shutter speed。  \n2. 稍微提高 ISO。  \n3. 增加一点 positive EV。\n\n修正过亮照片：\n\n1. 提高 shutter speed。  \n2. 降低 ISO。  \n3. 增加一点 negative EV。\n\n---\n\n## 🛠 简单练习\n\n1. 将相机对准窗户或明亮场景。  \n2. 切换到 **Manual (M)** 模式。  \n3. 设置低 ISO，并调整 shutter，直到画面看起来合适。  \n4. 然后提高 ISO，观察 Histogram 和噪点如何变化。\n\n注意每个控制如何改变画面 look。\n\n---\n\n**下一步**：“Manual Focus：什么时候以及如何使用” →"
+  },
+  {
+    "id": 6,
+    "title": "Manual Focus：什么时候以及如何使用",
+    "subtitle": "自己控制画面中什么部分保持清晰。",
+    "readTime": 5,
+    "body": "# Manual Focus：什么时候以及如何使用 🎯\n\nAuto Focus 快速又智能，但有时你需要完全控制。Manual Focus (MF) 让你准确决定**什么**应该清晰。\n\n---\n\n## 🔁 切换到 Manual Focus\n\n1. 打开 **Pro Controls**。  \n2. 在 **Focus** 部分选择 **MF**。  \n3. 使用 **focus slider** 将 focus 从近处移到远处。\n\n观察预览，在主体看起来清晰时停下。\n\n---\n\n## 📌 什么时候 Manual Focus 更好\n\n以下情况适合使用 MF：\n\n- 相机总是对错物体。  \n- 你在拍 **macro** 或非常近的细节。  \n- 你想在两个主体之间做电影感 **focus pull**。  \n- 环境很暗，AF 难以工作。\n\n---\n\n## 🎥 做一个 Focus Pull\n\n1. 确定前景主体 A 和背景主体 B。  \n2. 用 slider 从 A 的 focus 开始。  \n3. 开始录制。  \n4. 保持手稳，慢慢把 focus 移向 B。\n\n这个简单动作能让画面立刻更专业。\n\n---\n\n## 🔍 Macro 与细节拍摄\n\n拍摄花朵、纹理或物品 close-up 时：\n\n- 在仍能 focus 的范围内，让手机**尽量靠近**。  \n- 切换到 MF，微调到小细节清晰弹出。  \n- 保持手机非常稳定，或使用小三脚架。\n\n---\n\n## ✅ Manual Focus 清单\n\n- 稍微数码 zoom 查看 focus 是否真的清晰，然后再缩回来。  \n- 将 MF 与 **Grid** overlay 结合，帮助对齐主体。  \n- 练习小幅移动 slider；大幅跳动会显得粗糙。\n\n---\n\n**下一步**：“低光与夜景照片的最佳设置” →"
+  },
+  {
+    "id": 7,
+    "title": "低光与夜景照片的最佳设置",
+    "subtitle": "在黑暗中减少噪点并保持画面清晰。",
+    "readTime": 6,
+    "body": "# 低光与夜景照片的最佳设置 🌙\n\n低光拍摄很有挑战，但也很有成就感。使用正确设置和技巧，Air Camera 可以拍出干净、有氛围的夜间画面。\n\n---\n\n## ⚙️ 建议夜间设置\n\n从以下设置开始：\n\n- **Exposure Mode**: M 或 S  \n- **ISO**: 从 400–800 左右开始  \n- **Shutter Speed**: 手持时使用 1/30s 到 1/60s  \n- **White Balance**: Tungsten 或自定义，适合街灯  \n- **Focus**: 如果 AF 来回寻找，就用 MF\n\n> 💡 如果主体静止，并且你可以支撑手机，可以使用更慢的 shutter（1/10s 或 1/5s）获得更多光线。\n\n---\n\n## 📉 控制噪点\n\nISO 很高时会出现噪点。\n\n- 使用仍能保持画面足够亮的**最低 ISO**。  \n- 如果可能，增加现场光线，例如靠近光源或打开灯。  \n- 避免极端 digital zoom；之后再裁剪。\n\n---\n\n## 🧍 夜间保持清晰\n\n- 用**双手**握住手机，并把手肘靠近身体。  \n- 靠墙或桌子增加稳定性。  \n- 轻轻点击 shutter，不要用力戳屏幕。\n\n如果可以，使用小三脚架，或把手机放在稳定表面上。\n\n---\n\n## 🌆 城市灯光与街景\n\n- 使用 **Tungsten WB** 平衡温暖街灯。  \n- 稍微降低 EV（–0.3），避免 highlights clipping。  \n- 寻找湿路面、窗户或汽车上的反射。\n\n---\n\n## 🌌 夜空与光轨\n\n拍摄光轨、星空等创意效果时：\n\n- 将 **shutter 调慢**（1/2s、1s，或可用时更长）。  \n- ISO 尽量保持低。  \n- 使用 **MF**，并将 focus 调到接近无限远。  \n- 一定使用三脚架或非常稳定的表面。\n\n即使很小的震动，也会让长曝光变模糊。\n\n---\n\n## ✅ 夜间快速清单\n\n- 除非它是主体，否则避免画面中出现过强光源。  \n- 多拍几张；一次小抖动可能毁掉一张，但不会毁掉全部。  \n- 放大查看图片，确认是否清晰。\n\n---\n\n**下一步**：“使用 LUTs 打造专业 Looks” →"
+  },
+  {
+    "id": 8,
+    "title": "使用 LUTs 打造专业 Looks",
+    "subtitle": "为影像增加风格，但不要过度。",
+    "readTime": 5,
+    "body": "# 使用 LUTs 打造专业 Looks 🎨\n\nLUTs (Look-Up Tables) 是改变画面颜色和对比度的预设。Air Camera 内置了多个 looks，可以实时应用。\n\n---\n\n## 🎭 LUTs 能做什么\n\nLUT 可以：\n\n- 改变颜色，例如 teal 阴影和暖色肤色。  \n- 增加或降低对比度。  \n- 改变整体情绪，例如 warm、cool、pastel 等。\n\n它们**不能**修复糟糕光线或错误 focus，但可以让好画面更出彩。\n\n---\n\n## 🌈 内置 Looks\n\n常见 looks：\n\n- **None** – 中性，适合后期编辑。  \n- **Warm Classic** – 柔和暖色调，适合人物。  \n- **Soft Pastel** – 低对比、梦幻感觉。  \n- **Cinematic Teal** – 现代电影感色彩。\n\n---\n\n## 🎚️ Strength Slider\n\n使用 **Strength** 控制 look，避免过度。\n\n- 0–30% → 非常轻微，几乎看不出来。  \n- 30–60% → 自然而有风格，推荐使用。  \n- 60–100% → 强烈风格；只有真正想要这种效果时再用。\n\n> 💡 如果肤色奇怪或 highlights 太硬，降低 strength。\n\n---\n\n## 🧪 简单工作流程\n\n1. 先设置曝光和 white balance。  \n2. 选择适合场景情绪的 LUT。  \n3. 移动 Strength slider，直到感觉自然。  \n4. 录制一小段测试视频并回看。\n\n记住：如果你计划后期 color-grade，也可以随时切回 **None**。\n\n---\n\n## 🔁 shots 之间保持一致\n\n对于项目或 vlog episode，可以尝试：\n\n- 所有片段使用**一个主要 LUT**。  \n- 固定 **White Balance**，让颜色匹配。  \n- 除非是刻意效果，否则不要每个 shot 都改变 strength。\n\n---\n\n**下一步**：“如何稳定拍摄（无需 gimbal）” →"
+  },
+  {
+    "id": 9,
+    "title": "如何稳定拍摄（无需 gimbal）",
+    "subtitle": "只用双手和简单技巧，也能获得平稳画面。",
+    "readTime": 5,
+    "body": "# 如何稳定拍摄（无需 gimbal） 🧘\n\n抖动的视频会毁掉很好的内容。幸运的是，通过简单技巧和 Air Camera 的工具，你可以获得更平稳的画面。\n\n---\n\n## ✅ 打开 Stabilization\n\n在 Video Pro Controls 中，确认 **Stab** 已开启。\n\n它会使用 software stabilization 来平滑轻微手部移动。\n\n---\n\n## 🧍 身体姿势与握持\n\n- 用**双手**握住手机。  \n- 手肘轻轻靠近身体。  \n- 身体保持放松，不要僵硬。\n\n走动时：\n\n- 膝盖微微弯曲。  \n- 步伐慢而轻。  \n- 上半身像稳定“漂浮”的 rig 一样移动。\n\n---\n\n## 🧱 利用周围环境\n\n- 靠在墙、柱子或桌子上。  \n- 把手机放在栏杆、长椅或书上。  \n- 沿着平滑表面滑动手机，做出类似 dolly 的 shot。\n\n---\n\n## 🎥 短动作，而不是长时间走动\n\n不要拍很长的 walking shots，可以：\n\n- 拍摄 1–3 秒的**短而可控的移动**。  \n- 停下，重新构图，再拍下一段移动。\n\n这些 shots 更容易剪辑，也看起来更平稳。\n\n---\n\n## 🔊 也要注意 Audio\n\n如果移动时 audio meter 出现很高的峰值，可能是你碰到了手机或麦克风区域。调整握持，避免手指遮挡麦克风。\n\n---\n\n## 🧾 稳定拍摄快速清单\n\n- Stabilization 开启  \n- 双手握持  \n- 手肘靠近身体  \n- 慢步伐和稳定呼吸  \n- 使用墙、桌子和物体作为支撑\n\n---\n\n**下一步**：“完整 Mobile Filmmaking 技巧” →"
+  },
+  {
+    "id": 10,
+    "title": "完整 Mobile Filmmaking 技巧",
+    "subtitle": "从想法到最终 shot，用 Air Camera 完成。",
+    "readTime": 7,
+    "body": "# 完整 Mobile Filmmaking 技巧 🎥📱\n\n现在你已经了解 Air Camera 中的工具，本指南会把所有内容整理成一个简单 workflow，可用于 vlog、short films 或 travel videos。\n\n---\n\n## 📝 1. 拍摄前先规划\n\n你不需要很大的 script，只需要一个清晰想法：\n\n- 这个视频讲什么？  \n- 谁或什么是主要主体？  \n- 你要在哪里拍？  \n- 它应该多长？\n\n做一个快速 shot list：\n\n- Wide shot  \n- Medium shot  \n- Close-up  \n- 额外细节，比如手、环境、物品\n\n---\n\n## ⚙️ 2. 一次性设置好相机\n\n录制前：\n\n- 为整个项目选择 **Resolution**、**Frame Rate** 和 **Codec**。  \n- 选择一个 **LUT**（或 None）并保持一致。  \n- 锁定 **White Balance**，保持颜色一致。  \n- 打开 **Histogram**，避免 clipping。\n\n这样所有片段看起来会属于同一个故事。\n\n---\n\n## 🔆 3. 光线是一切\n\n- 优先使用窗边或户外的**自然光**。  \n- 避免强烈混合光，例如 daylight + green fluorescent。  \n- 夜晚时，让主体靠近最亮的光源。\n\n记住：把光线好的 shot 做得更有戏剧感，比拯救黑暗、noisy 的 shot 容易得多。\n\n---\n\n## 🎙 4. 认真对待 Audio\n\n- 观察 **audio meters**，目标大约是 –12 dB 到 –6 dB。  \n- 尽量在安静的地方录制。  \n- 与其大声说话，不如把手机靠近声音来源。\n\n好的 audio 会让视频更专业，即使画面很简单。\n\n---\n\n## 🎬 5. 分段拍摄，不要一镜到底\n\n每个瞬间可以这样拍：\n\n1. 先拍 **Wide shot**，展示环境。  \n2. 拍主体的 **Medium shot**。  \n3. 捕捉脸、手或重要细节的 **Close-ups**。  \n4. 加一些 **cutaway shots**，比如天空、建筑或背景人物。\n\n这些素材在 editing 时会给你更多空间。\n\n---\n\n## 🧠 6. 保持故事清晰\n\n即使是短片段，也最好有：\n\n- **开头**：我们在哪里？谁在这里？  \n- **中段**：发生了什么？  \n- **结尾**：发生了什么变化，或我们学到了什么？\n\n思考你希望观众最后**感受到**什么。\n\n---\n\n## ✅ 7. 简单 workflow 总结\n\n1. 规划故事和 shot list。  \n2. 一开始设置一次 Pro Controls。  \n3. 使用稳定握持或支撑表面。  \n4. 观察曝光、focus 和 audio meters。  \n5. 每个瞬间拍多个角度。  \n6. 保持片段短而有目的。\n\n---\n\n**下一步**：探索 **Guide Library** 中的其他指南，或重新阅读你想练习的主题。Air Camera 会随着你的技能一起成长。🌟"
+  }
+]

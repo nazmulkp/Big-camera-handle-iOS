@@ -22,6 +22,10 @@ struct BlogPost: Identifiable, Codable {
 
 // MARK: - Store
 
+// MARK: - Store
+
+// MARK: - Store
+
 final class BlogStore: ObservableObject {
     @Published var posts: [BlogPost] = []
 
@@ -29,11 +33,24 @@ final class BlogStore: ObservableObject {
         load()
     }
 
-    private func load() {
-        guard let url = Bundle.main.url(forResource: "blogs", withExtension: "json") else {
-            print("⚠️ blogs.json not found")
+    func load() {
+        let languageCode = currentBlogLanguageCode()
+
+        let possibleFileNames = [
+            "blogs_\(languageCode)",
+            "blogs_en",
+            "blogs"
+        ]
+
+        guard let selectedFileName = possibleFileNames.first(where: {
+            Bundle.main.url(forResource: $0, withExtension: "json") != nil
+        }),
+        let url = Bundle.main.url(forResource: selectedFileName, withExtension: "json") else {
+            print("⚠️ No blog JSON file found")
             return
         }
+
+        print("✅ Loading blog file:", selectedFileName)
 
         do {
             let data = try Data(contentsOf: url)
@@ -43,8 +60,70 @@ final class BlogStore: ObservableObject {
                 self.posts = decoded
             }
         } catch {
-            print("⚠️ Failed to decode blogs.json:", error)
+            print("⚠️ Failed to decode \(selectedFileName).json:", error)
         }
+    }
+
+    private func currentBlogLanguageCode() -> String {
+        for preferred in Locale.preferredLanguages {
+            let identifier = preferred.replacingOccurrences(of: "_", with: "-")
+            let locale = Locale(identifier: identifier)
+            let languageCode = locale.languageCode ?? "en"
+            let regionCode = locale.regionCode ?? ""
+
+            // Chinese
+            if identifier.hasPrefix("zh-Hans") {
+                return "zh-Hans"
+            }
+
+            if identifier.hasPrefix("zh-Hant") {
+                return "zh-Hant"
+            }
+
+            if languageCode == "zh" {
+                switch regionCode {
+                case "TW", "HK", "MO":
+                    return "zh-Hant"
+                default:
+                    return "zh-Hans"
+                }
+            }
+
+            // Portuguese
+            if languageCode == "pt" {
+                return "pt-BR"
+            }
+
+            // Other supported languages
+            switch languageCode {
+            case "en":
+                return "en"
+            case "ar":
+                return "ar"
+            case "fr":
+                return "fr"
+            case "de":
+                return "de"
+            case "it":
+                return "it"
+            case "ja":
+                return "ja"
+            case "ko":
+                return "ko"
+            case "ru":
+                return "ru"
+            case "es":
+                return "es"
+            case "tr":
+                return "tr"
+            case "hi":
+                return "hi"
+            default:
+                continue
+            }
+        }
+
+        return "en"
     }
 }
 

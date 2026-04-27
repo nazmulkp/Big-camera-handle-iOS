@@ -33,6 +33,12 @@
             "value" : "Continuer"
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "जारी रखें"
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -113,6 +119,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Fermer"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "बंद करें"
           }
         },
         "it" : {
@@ -197,6 +209,12 @@
             "value" : "L’accès à la caméra est utilisé pour capturer des photos et des vidéos avec des contrôles manuels complets."
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Camera access का उपयोग full manual controls के साथ photos और videos capture करने के लिए किया जाता है."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -277,6 +295,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "L’accès à la caméra est nécessaire pour capturer des photos et des vidéos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Photos और videos capture करने के लिए Camera access आवश्यक है."
           }
         },
         "it" : {
@@ -361,6 +385,12 @@
             "value" : "L’accès au microphone est nécessaire pour enregistrer l’audio avec vos vidéos."
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके videos के साथ audio record करने के लिए Microphone access आवश्यक है."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -441,6 +471,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "L’accès au microphone est utilisé pour enregistrer un son de haute qualité avec vos vidéos."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपके video footage के साथ high-quality audio record करने के लिए Microphone access का उपयोग किया जाता है."
           }
         },
         "it" : {
@@ -525,6 +561,12 @@
             "value" : "Autorisation requise"
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permission आवश्यक है"
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -605,6 +647,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Ouvrir les réglages"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Settings खोलें"
           }
         },
         "it" : {
@@ -689,6 +737,12 @@
             "value" : "Vos photos et vidéos restent privées sur votre appareil. Nous n’y accédons pas, ne les téléversons pas et ne les stockons pas."
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपकी photos और videos आपके device पर private रहती हैं। हम उन्हें access, upload या store नहीं करते."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -769,6 +823,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Demande d’autorisations…"
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions मांगी जा रही हैं…"
           }
         },
         "it" : {
@@ -853,6 +913,12 @@
             "value" : "Vous pouvez activer l’accès à la caméra et au microphone à tout moment depuis les réglages iOS."
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आप iOS Settings से कभी भी Camera और Microphone access enable कर सकते हैं."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -933,6 +999,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Pour commencer à filmer avec Easy Pro Camera, l’app a besoin d’accéder à votre caméra et à votre microphone."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easy Pro Camera के साथ shooting शुरू करने के लिए, app को आपके Camera और Microphone access की जरूरत है."
           }
         },
         "it" : {
@@ -1017,6 +1089,12 @@
             "value" : "Merci d’avoir téléchargé Easy Pro Camera ! Profitez de la capture de vos moments préférés et aidez-nous à nous améliorer en partageant votre expérience avec des notes, des avis ou des messages. Contactez-nous à tout moment si vous rencontrez un problème ou avez des idées de fonctionnalités."
           }
         },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Easy Pro Camera डाउनलोड करने के लिए धन्यवाद! अपने favorite moments capture करने का आनंद लें, और ratings, reviews या messages के जरिए अपना experience share करके हमें improve करने में मदद करें. अगर आपको कोई issue हो या feature ideas हों, तो कभी भी contact करें."
+          }
+        },
         "it" : {
           "stringUnit" : {
             "state" : "translated",
@@ -1097,6 +1175,12 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Votre caméra, votre style, à votre façon."
+          }
+        },
+        "hi" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "आपका Camera, आपके Looks, आपका तरीका."
           }
         },
         "it" : {

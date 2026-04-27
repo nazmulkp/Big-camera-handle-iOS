@@ -21,6 +21,12 @@
             "value": "Contrôles Pro"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pro Controls"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -101,6 +107,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Réinitialiser"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रीसेट करें"
           }
         },
         "de": {
@@ -185,6 +197,12 @@
             "value": "Terminé"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "हो गया"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -265,6 +283,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Disposition"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "लेआउट"
           }
         },
         "de": {
@@ -349,6 +373,12 @@
             "value": "Disposition pour gaucher"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Left-handed layout"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -426,6 +456,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HUD"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "HUD"
@@ -513,6 +549,12 @@
             "value": "Mode Zen (HUD épuré)"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zen Mode (Clean HUD)"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -593,6 +635,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Masquez toutes les commandes sauf l’obturateur, les informations et le zoom. Touchez l’écran pour afficher temporairement tout le HUD."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "shutter, readout और zoom को छोड़कर सभी controls छिपाएँ। full HUD को temporarily दिखाने के लिए screen पर tap करें।"
           }
         },
         "de": {
@@ -677,6 +725,12 @@
             "value": "Balance des blancs"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "White Balance"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -757,6 +811,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Temp."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Temp"
           }
         },
         "de": {
@@ -841,6 +901,12 @@
             "value": "Teinte"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tint"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -921,6 +987,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Exposition"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Exposure"
           }
         },
         "de": {
@@ -1005,6 +1077,12 @@
             "value": "Obturateur"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Shutter"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1082,6 +1160,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ISO"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "ISO"
@@ -1169,6 +1253,12 @@
             "value": "Compensation EV"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "EV Compensation"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1249,6 +1339,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ISO auto min."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto ISO Min"
           }
         },
         "de": {
@@ -1333,6 +1429,12 @@
             "value": "ISO auto max."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auto ISO Max"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1413,6 +1515,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Mise au point"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Focus"
           }
         },
         "de": {
@@ -1497,6 +1605,12 @@
             "value": "Mise au point manuelle"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Manual Focus"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1574,6 +1688,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Format"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "Format"
@@ -1661,6 +1781,12 @@
             "value": "∙ N/D"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "∙ उपलब्ध नहीं"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1741,6 +1867,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "JPEG • Compatibilité maximale."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "JPEG • Maximum compatibility."
           }
         },
         "de": {
@@ -1825,6 +1957,12 @@
             "value": "HEIF • Fichiers plus petits, haute qualité."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "HEIF • Smaller files, high quality."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -1905,6 +2043,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "RAW • Plage dynamique maximale pour la retouche."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "RAW • Editing के लिए maximum dynamic range."
           }
         },
         "de": {
@@ -1989,6 +2133,12 @@
             "value": "Capture RAW de type ProRAW (selon l’appareil)."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ProRAW-style RAW capture (device dependent)."
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2069,6 +2219,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Surveillance"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Monitoring"
           }
         },
         "de": {
@@ -2153,6 +2309,12 @@
             "value": "Gain audio"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Audio Gain"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2230,6 +2392,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld dB"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "%lld dB"
@@ -2317,6 +2485,12 @@
             "value": "Muet"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mute"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2397,6 +2571,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Vidéo"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Video"
           }
         },
         "de": {
@@ -2481,6 +2661,12 @@
             "value": "Résolution"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resolution"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2561,6 +2747,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Fréquence d’images"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frame Rate"
           }
         },
         "de": {
@@ -2645,6 +2837,12 @@
             "value": "Stab."
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stab"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2722,6 +2920,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codec"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "Codec"
@@ -2809,6 +3013,12 @@
             "value": "Profil colorimétrique"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Color Profile"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -2889,6 +3099,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Débit binaire"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bitrate"
           }
         },
         "de": {
@@ -2973,6 +3189,12 @@
             "value": "Stab. activée"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stab On"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3055,6 +3277,12 @@
             "value": "Stab. désactivée"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Stab Off"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3132,6 +3360,12 @@
           }
         },
         "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Looks / LUTs"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "Looks / LUTs"
@@ -3219,6 +3453,12 @@
             "value": "Intensité"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Strength"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3299,6 +3539,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Appliquer aux photos capturées"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "captured photos पर apply करें"
           }
         },
         "de": {
@@ -3383,6 +3629,12 @@
             "value": "Objectif"
           }
         },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lens"
+          }
+        },
         "de": {
           "stringUnit": {
             "state": "translated",
@@ -3463,6 +3715,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Arrêtez l’enregistrement pour changer d’objectif."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lens switch करने के लिए recording बंद करें."
           }
         },
         "de": {

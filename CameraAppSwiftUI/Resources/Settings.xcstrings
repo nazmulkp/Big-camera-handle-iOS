@@ -80,6 +80,12 @@
             "state": "translated",
             "value": "Ayarlar"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "सेटिंग्स"
+          }
         }
       }
     },
@@ -161,6 +167,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Geliştiriciyle İletişime Geç"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "डेवलपर से संपर्क करें"
           }
         }
       }
@@ -244,6 +256,12 @@
             "state": "translated",
             "value": "WhatsApp’ta Sohbet Et"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "WhatsApp पर चैट करें"
+          }
         }
       }
     },
@@ -326,6 +344,12 @@
             "state": "translated",
             "value": "E-posta: %@"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ईमेल: %@"
+          }
         }
       }
     },
@@ -404,6 +428,12 @@
           }
         },
         "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "iMessage / SMS"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "iMessage / SMS"
@@ -490,6 +520,12 @@
             "state": "translated",
             "value": "Puan Ver ve Yorum Yap"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "रेटिंग और समीक्षा"
+          }
         }
       }
     },
@@ -571,6 +607,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Air Camera’yı App Store’da Değerlendir"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "App Store पर Air Camera को रेट करें"
           }
         }
       }
@@ -654,6 +696,12 @@
             "state": "translated",
             "value": "Hakkında"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "परिचय"
+          }
         }
       }
     },
@@ -736,6 +784,12 @@
             "state": "translated",
             "value": "Uygulama"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ऐप"
+          }
         }
       }
     },
@@ -814,6 +868,12 @@
           }
         },
         "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Air Camera"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "Air Camera"
@@ -900,6 +960,12 @@
             "state": "translated",
             "value": "Sürüm"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संस्करण"
+          }
         }
       }
     },
@@ -978,6 +1044,12 @@
           }
         },
         "tr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "1.2"
+          }
+        },
+        "hi": {
           "stringUnit": {
             "state": "translated",
             "value": "1.2"
@@ -1064,6 +1136,12 @@
             "state": "translated",
             "value": "Mesajlar kullanılamıyor"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "संदेश उपलब्ध नहीं हैं"
+          }
         }
       }
     },
@@ -1145,6 +1223,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Bu cihaz mesaj gönderemiyor."
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "यह डिवाइस संदेश नहीं भेज सकता।"
           }
         }
       }
@@ -1228,6 +1312,12 @@
             "state": "translated",
             "value": "Tamam"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ठीक है"
+          }
         }
       }
     },
@@ -1310,6 +1400,12 @@
             "state": "translated",
             "value": "Air Camera geri bildirimi"
           }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Air Camera फ़ीडबैक"
+          }
         }
       }
     },
@@ -1391,6 +1487,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "Merhaba Sohag,\n\nAir Camera kullanıyorum ve…"
+          }
+        },
+        "hi": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "नमस्ते Sohag,\n\nमैं Air Camera इस्तेमाल कर रहा/रही हूँ और…"
           }
         }
       }
