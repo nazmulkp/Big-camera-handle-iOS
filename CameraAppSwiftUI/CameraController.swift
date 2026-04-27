@@ -277,61 +277,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
     }
 
     
-    /// Raw free space in bytes
-    func freeDiskSpaceBytes() -> Int64 {
-        do {
-            let attrs = try FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
-            if let free = attrs[.systemFreeSize] as? NSNumber {
-                return free.int64Value
-            }
-        } catch {
-            print("⚠️ Failed to get free disk space: \(error)")
-        }
-        return 0
-    }
-    /// Human-readable + simple warning
-    func storageStatusSummary() -> String {
-        let freeBytes = freeDiskSpaceBytes()
-        let readable = ByteCountFormatter.readableSize(from: freeBytes)
 
-        // e.g. warn if less than 2 GB
-        let lowThreshold: Int64 = 2 * 1024 * 1024 * 1024
-
-        if freeBytes == 0 {
-            return "Storage: unknown"
-        } else if freeBytes < lowThreshold {
-            return "\(readable) ⚠️ Low storage"
-        } else {
-            return "\(readable) free"
-        }
-    }
-
-    func batteryStatusSummary() -> String {
-        let b = batteryReadout()
-
-        switch b.state {
-        case .charging:
-            return "\(b.percent)% ⚡️"
-        case .full:
-            return "\(b.percent)% 🔋"
-        case .unplugged:
-            if b.percent <= 20 {
-                return "\(b.percent)% ❗️Low Battery"
-            } else if b.percent <= 35 {
-                return "\(b.percent)% ⚠️"
-            } else {
-                return "\(b.percent)%"
-            }
-        default:
-            return "\(b.percent)%"
-        }
-    }
-    
-    func batteryStatusSummaryInt() -> Int {
-        let b = batteryReadout()
-
-        return b.percent
-    }
 
     // MARK: - Init
 
@@ -1412,78 +1358,7 @@ final class CameraController: NSObject, ObservableObject, AVCaptureAudioDataOutp
         }
     }
 
-    // MARK: - Readouts for UI
-
-    func shutterDisplayString() -> String {
-        if exposureMode == .auto {
-            return "Shutter Auto"
-        }
-
-        let seconds = shutterSecondsFromSlider()
-
-        if seconds >= 1.0 {
-            return String(format: "%.1fs", seconds)
-        } else {
-            let denom = Int((1.0 / seconds).rounded())
-            return "1/\(denom)s"
-        }
-    }
-
-    func isoDisplayString() -> String {
-        if exposureMode == .auto {
-            return "ISO Auto"
-        }
-
-        let (_, _) = effectiveISORange()
-        let iso = isoFromNormalized(isoSliderValue.clamped(to: 0...1))
-        return "ISO \(Int(iso.rounded()))"
-    }
-
-    func whiteBalanceDisplayString() -> String {
-        switch whiteBalanceMode {
-        case .auto:
-            return "WB Auto"
-        case .manual:
-            let temp = Int(temperatureFromNormalized(tempSliderValue.clamped(to: 0...1)))
-            let tint = Int(tintFromNormalized(tintSliderValue.clamped(to: 0...1)))
-            let tintString = tint == 0 ? "0" : (tint > 0 ? "+\(tint)" : "\(tint)")
-            return "WB \(temp)K • Tint \(tintString)"
-        }
-    }
-
-    func focusDisplayString() -> String {
-        switch focusMode {
-        case .auto:
-            return "Focus Auto"
-        case .manual:
-            let pos = focusSliderValue.clamped(to: 0...1)
-            return String(format: "Focus %.2f", pos)
-        }
-    }
-
-    func shutterReadoutShort() -> String {
-        if exposureMode == .auto {
-            return "Auto"
-        }
-
-        let seconds = shutterSecondsFromSlider()
-
-        if seconds >= 1.0 {
-            return String(format: "%.1f", seconds)  // "0.5"
-        } else {
-            let denom = Int((1.0 / seconds).rounded())
-            return "1/\(denom)"                    // "1/250"
-        }
-    }
-
-    func isoReadoutShort() -> String {
-        if exposureMode == .auto {
-            return "Auto"
-        }
-
-        let iso = isoFromNormalized(isoSliderValue.clamped(to: 0...1))
-        return "\(Int(iso.rounded()))"
-    }
+   
 
     func focalLengthReadout() -> String {
         let approx = baseFocalLengthMM * Double(zoomFactor)
@@ -2128,4 +2003,169 @@ extension CameraController {
         }
     }
 
+}
+// MARK: Translating section
+
+extension CameraController {
+    
+    // MARK: - Readouts for UI
+
+    func shutterDisplayString() -> String {
+        if exposureMode == .auto {
+            return String(localized: "main_camera.shutter.auto", table: "MainCameraControl")
+        }
+
+        let seconds = shutterSecondsFromSlider()
+
+        if seconds >= 1.0 {
+            return String(format: "%.1fs", seconds)
+        } else {
+            let denom = Int((1.0 / seconds).rounded())
+            return "1/\(denom)s"
+        }
+    }
+
+    func isoDisplayString() -> String {
+        if exposureMode == .auto {
+            return String(localized: "main_camera.iso.auto", table: "MainCameraControl")
+        }
+
+        let (_, _) = effectiveISORange()
+        let iso = isoFromNormalized(isoSliderValue.clamped(to: 0...1))
+        return "ISO \(Int(iso.rounded()))"
+    }
+
+    func whiteBalanceDisplayString() -> String {
+        switch whiteBalanceMode {
+        case .auto:
+            return String(localized: "main_camera.wb.auto", table: "MainCameraControl")
+
+        case .manual:
+            let temp = Int(temperatureFromNormalized(tempSliderValue.clamped(to: 0...1)))
+            let tint = Int(tintFromNormalized(tintSliderValue.clamped(to: 0...1)))
+            let tintString = tint == 0 ? "0" : (tint > 0 ? "+\(tint)" : "\(tint)")
+
+            let format = String(
+                localized: "main_camera.wb.manual",
+                table: "MainCameraControl"
+            )
+
+            return String(format: format, temp, tintString)
+        }
+    }
+
+    func focusDisplayString() -> String {
+        switch focusMode {
+        case .auto:
+            return String(localized: "main_camera.focus.auto", table: "MainCameraControl")
+
+        case .manual:
+            let pos = focusSliderValue.clamped(to: 0...1)
+
+            let format = String(
+                localized: "main_camera.focus.manual",
+                table: "MainCameraControl"
+            )
+
+            return String(format: format, pos)
+        }
+    }
+
+    func shutterReadoutShort() -> String {
+        if exposureMode == .auto {
+            return String(localized: "main_camera.auto.short", table: "MainCameraControl")
+        }
+
+        let seconds = shutterSecondsFromSlider()
+
+        if seconds >= 1.0 {
+            return String(format: "%.1f", seconds)
+        } else {
+            let denom = Int((1.0 / seconds).rounded())
+            return "1/\(denom)"
+        }
+    }
+
+    func isoReadoutShort() -> String {
+        if exposureMode == .auto {
+            return String(localized: "main_camera.auto.short", table: "MainCameraControl")
+        }
+
+        let iso = isoFromNormalized(isoSliderValue.clamped(to: 0...1))
+        return "\(Int(iso.rounded()))"
+    }
+
+    /// Raw free space in bytes
+    func freeDiskSpaceBytes() -> Int64 {
+        do {
+            let attrs = try FileManager.default.attributesOfFileSystem(forPath: NSHomeDirectory())
+            if let free = attrs[.systemFreeSize] as? NSNumber {
+                return free.int64Value
+            }
+        } catch {
+            print("⚠️ Failed to get free disk space: \(error)")
+        }
+
+        return 0
+    }
+
+    /// Human-readable + simple warning
+    func storageStatusSummary() -> String {
+        let freeBytes = freeDiskSpaceBytes()
+        let readable = ByteCountFormatter.readableSize(from: freeBytes)
+
+        let lowThreshold: Int64 = 2 * 1024 * 1024 * 1024
+
+        if freeBytes == 0 {
+            return String(localized: "main_camera.storage.unknown", table: "MainCameraControl")
+        } else if freeBytes < lowThreshold {
+            let format = String(
+                localized: "main_camera.storage.low",
+                table: "MainCameraControl"
+            )
+
+            return String(format: format, readable)
+        } else {
+            let format = String(
+                localized: "main_camera.storage.free",
+                table: "MainCameraControl"
+            )
+
+            return String(format: format, readable)
+        }
+    }
+
+    func batteryStatusSummary() -> String {
+        let b = batteryReadout()
+
+        switch b.state {
+        case .charging:
+            return "\(b.percent)% ⚡️"
+
+        case .full:
+            return "\(b.percent)% 🔋"
+
+        case .unplugged:
+            if b.percent <= 20 {
+                let format = String(
+                    localized: "main_camera.battery.low",
+                    table: "MainCameraControl"
+                )
+
+                return String(format: format, b.percent)
+            } else if b.percent <= 35 {
+                return "\(b.percent)% ⚠️"
+            } else {
+                return "\(b.percent)%"
+            }
+
+        default:
+            return "\(b.percent)%"
+        }
+    }
+    
+    func batteryStatusSummaryInt() -> Int {
+        let b = batteryReadout()
+        return b.percent
+    }
 }

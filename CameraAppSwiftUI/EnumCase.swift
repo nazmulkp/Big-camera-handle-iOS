@@ -5,6 +5,8 @@
 //  Created by Md Nazmul Hasan on 11/21/25.
 //
 
+import Foundation
+
 // MARK: - Back camera lenses
 
 enum BackCameraLens: String, CaseIterable, Identifiable {
@@ -23,6 +25,7 @@ enum BackCameraLens: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Video resolution
 
 enum VideoResolution: String, CaseIterable, Identifiable {
     case res720p
@@ -40,6 +43,8 @@ enum VideoResolution: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Video frame rate
+
 enum VideoFrameRate: Int, CaseIterable, Identifiable {
     case fps24 = 24
     case fps30 = 30
@@ -52,6 +57,8 @@ enum VideoFrameRate: Int, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Video codec
+
 enum VideoCodecPreset: String, CaseIterable, Identifiable {
     case h264
     case hevc
@@ -60,11 +67,13 @@ enum VideoCodecPreset: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .h264:       return "H.264"
-        case .hevc:       return "HEVC"
+        case .h264: return "H.264"
+        case .hevc: return "HEVC"
         }
     }
 }
+
+// MARK: - Video color profile
 
 enum VideoColorProfile: String, CaseIterable, Identifiable {
     case sdr
@@ -82,6 +91,8 @@ enum VideoColorProfile: String, CaseIterable, Identifiable {
     }
 }
 
+// MARK: - Video bitrate
+
 enum VideoBitratePreset: String, CaseIterable, Identifiable {
     case standard
     case high
@@ -91,13 +102,17 @@ enum VideoBitratePreset: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .standard: return "Std"
-        case .high:     return "High"
-        case .max:      return "Max"
+        case .standard:
+            return String(localized: "enum.video_bitrate.standard", table: "ProControlsEnums")
+        case .high:
+            return String(localized: "enum.video_bitrate.high", table: "ProControlsEnums")
+        case .max:
+            return String(localized: "enum.video_bitrate.max", table: "ProControlsEnums")
         }
     }
 }
 
+// MARK: - Flash
 
 enum FlashState: String, CaseIterable, Identifiable {
     case off
@@ -116,13 +131,15 @@ enum FlashState: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .off:  return "Off"
-        case .auto: return "Auto"
-        case .on:   return "On"
+        case .off:
+            return String(localized: "enum.flash.off", table: "ProControlsEnums")
+        case .auto:
+            return String(localized: "enum.flash.auto", table: "ProControlsEnums")
+        case .on:
+            return String(localized: "enum.flash.on", table: "ProControlsEnums")
         }
     }
 }
-
 
 // MARK: - Exposure control modes
 
@@ -136,10 +153,14 @@ enum ExposureControlMode: String, CaseIterable, Identifiable {
 
     var shortLabel: String {
         switch self {
-        case .auto:            return "Auto"
-        case .manual:          return "M"
-        case .shutterPriority: return "S"
-        case .isoPriority:     return "ISO"
+        case .auto:
+            return String(localized: "enum.exposure.auto", table: "ProControlsEnums")
+        case .manual:
+            return String(localized: "enum.exposure.manual", table: "ProControlsEnums")
+        case .shutterPriority:
+            return String(localized: "enum.exposure.shutter_priority", table: "ProControlsEnums")
+        case .isoPriority:
+            return String(localized: "enum.exposure.iso_priority", table: "ProControlsEnums")
         }
     }
 }
@@ -174,8 +195,10 @@ enum WhiteBalanceMode: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .auto:   return "Auto"
-        case .manual: return "Manual"
+        case .auto:
+            return String(localized: "enum.white_balance.auto", table: "ProControlsEnums")
+        case .manual:
+            return String(localized: "enum.white_balance.manual", table: "ProControlsEnums")
         }
     }
 }
@@ -190,14 +213,17 @@ enum WhiteBalancePreset: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .daylight:    return "Day"
-        case .cloudy:      return "Cloudy"
-        case .tungsten:    return "Tungsten"
-        case .fluorescent: return "Fluoro"
+        case .daylight:
+            return String(localized: "enum.white_balance.daylight", table: "ProControlsEnums")
+        case .cloudy:
+            return String(localized: "enum.white_balance.cloudy", table: "ProControlsEnums")
+        case .tungsten:
+            return String(localized: "enum.white_balance.tungsten", table: "ProControlsEnums")
+        case .fluorescent:
+            return String(localized: "enum.white_balance.fluorescent", table: "ProControlsEnums")
         }
     }
 
-    /// Approximate temperature (K) & tint values.
     var temperatureAndTint: (temperature: Float, tint: Float) {
         switch self {
         case .daylight:    return (5500, 0)
@@ -218,8 +244,10 @@ enum FocusControlMode: String, CaseIterable, Identifiable {
 
     var label: String {
         switch self {
-        case .auto:   return "AF"
-        case .manual: return "MF"
+        case .auto:
+            return String(localized: "enum.focus.auto", table: "ProControlsEnums")
+        case .manual:
+            return String(localized: "enum.focus.manual", table: "ProControlsEnums")
         }
     }
 }

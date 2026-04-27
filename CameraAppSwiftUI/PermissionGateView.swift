@@ -39,31 +39,35 @@ final class PermissionViewModel: ObservableObject {
         }
     }
 
-    // MARK: - Request permissions (when user taps "Continue")
+    // MARK: - Request permissions
 
     func requestPermissions() {
         state = .requesting
         errorMessage = nil
 
-        // Step 1: Camera
         AVCaptureDevice.requestAccess(for: .video) { [weak self] cameraGranted in
             guard let self else { return }
 
             DispatchQueue.main.async {
                 if !cameraGranted {
                     self.state = .denied
-                    self.errorMessage = "Camera access is required to capture photos and videos."
+                    self.errorMessage = String(
+                        localized: "permission.error.camera_required",
+                        table: "Permission"
+                    )
                     return
                 }
 
-                // Step 2: Microphone
                 AVAudioSession.sharedInstance().requestRecordPermission { micGranted in
                     DispatchQueue.main.async {
                         if micGranted {
                             self.state = .granted
                         } else {
                             self.state = .denied
-                            self.errorMessage = "Microphone access is required to record audio with your videos."
+                            self.errorMessage = String(
+                                localized: "permission.error.microphone_required",
+                                table: "Permission"
+                            )
                         }
                     }
                 }
@@ -78,37 +82,22 @@ final class PermissionViewModel: ObservableObject {
               UIApplication.shared.canOpenURL(url) else {
             return
         }
+
         UIApplication.shared.open(url)
     }
 }
 
-
+// MARK: - Permission Gate View
 
 struct PermissionGateView: View {
     @StateObject private var vm = PermissionViewModel()
     @Environment(\.dismiss) private var dismiss
+
     var body: some View {
         Group {
             switch vm.state {
             case .granted:
-                Text("Thanks for downloading Easy Pro Camera! Enjoy capturing your favorite moments, and help us improve by sharing your experience through ratings, reviews, or messages. Reach out anytime if you have issues or feature ideas.")
-                    .font(.footnote)
-                    .foregroundStyle(.white.opacity(0.7))
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 24)
-                
-                Button {
-                    dismiss()
-                           } label: {
-                               Text("Dismiss")
-                                   .font(.headline)
-                                   .padding(.horizontal, 24)
-                                   .padding(.vertical, 8)
-                                   .background(Color.white)
-                                   .foregroundStyle(.black)
-                                   .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
-                           }
-                    
+                grantedView
 
             case .checking, .requesting, .needRequest, .denied:
                 PermissionExplanationScreen(
@@ -124,7 +113,44 @@ struct PermissionGateView: View {
             }
         }
     }
+
+    private var grantedView: some View {
+        ZStack {
+            LinearGradient(
+                colors: [
+                    Color.black,
+                    Color.black.opacity(0.95),
+                    Color.black
+                ],
+                startPoint: .top,
+                endPoint: .bottom
+            )
+            .ignoresSafeArea()
+
+            VStack(spacing: 18) {
+                Text("permission.success.message", tableName: "Permission")
+                    .font(.footnote)
+                    .foregroundStyle(.white.opacity(0.7))
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 24)
+
+                Button {
+                    dismiss()
+                } label: {
+                    Text("common.dismiss", tableName: "Permission")
+                        .font(.headline)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 8)
+                        .background(Color.white)
+                        .foregroundStyle(.black)
+                        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                }
+            }
+        }
+    }
 }
+
+// MARK: - Permission Explanation Screen
 
 struct PermissionExplanationScreen: View {
     let state: PermissionViewModel.PermissionState
@@ -148,7 +174,8 @@ struct PermissionExplanationScreen: View {
             VStack(spacing: 24) {
                 Spacer()
 
-                // Icon / visual
+                // MARK: - Icon
+
                 ZStack {
                     RoundedRectangle(cornerRadius: 32)
                         .fill(
@@ -166,44 +193,57 @@ struct PermissionExplanationScreen: View {
                     Image(systemName: "camera.aperture")
                         .font(.system(size: 48, weight: .bold))
                         .foregroundStyle(.white)
+                        .accessibilityHidden(true)
                 }
 
+                // MARK: - Title and Subtitle
+
                 VStack(spacing: 8) {
-                    Text("Your Camera, Your Looks, Your Way.")
+                    Text("permission.title", tableName: "Permission")
                         .font(.title2.bold())
                         .foregroundStyle(.white)
                         .multilineTextAlignment(.center)
 
-                    Text("To start shooting with Easy Pro Camera, App need access to your camera and microphone.")
+                    Text("permission.subtitle", tableName: "Permission")
                         .font(.body)
                         .foregroundStyle(.white.opacity(0.8))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 32)
                 }
 
+                // MARK: - Permission Benefits
+
                 VStack(alignment: .leading, spacing: 10) {
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "camera.fill")
                             .foregroundStyle(.pink)
-                        Text("Camera access is used to capture photos and videos with full manual controls.")
+                            .accessibilityHidden(true)
+
+                        Text("permission.camera.reason", tableName: "Permission")
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.85))
+                            .multilineTextAlignment(.leading)
                     }
 
                     HStack(alignment: .top, spacing: 10) {
                         Image(systemName: "mic.fill")
                             .foregroundStyle(.orange)
-                        Text("Microphone access is used to record high-quality audio with your video footage.")
+                            .accessibilityHidden(true)
+
+                        Text("permission.microphone.reason", tableName: "Permission")
                             .font(.subheadline)
                             .foregroundStyle(.white.opacity(0.85))
+                            .multilineTextAlignment(.leading)
                     }
-
                 }
                 .padding(.horizontal, 32)
+                .frame(maxWidth: .infinity, alignment: .leading)
+
+                // MARK: - Denied Message
 
                 if let errorMessage, state == .denied {
                     VStack(spacing: 8) {
-                        Text("Permission Needed")
+                        Text("permission.needed.title", tableName: "Permission")
                             .font(.headline)
                             .foregroundStyle(.red.opacity(0.9))
 
@@ -213,22 +253,23 @@ struct PermissionExplanationScreen: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
 
-                        Text("You can enable Camera & Microphone access anytime from iOS Settings.")
+                        Text("permission.settings.helper", tableName: "Permission")
                             .font(.footnote)
                             .foregroundStyle(.white.opacity(0.6))
                             .multilineTextAlignment(.center)
                             .padding(.horizontal, 24)
-                        
                     }
                     .padding(.top, 4)
                 }
 
                 Spacer()
 
+                // MARK: - Action Button
+
                 VStack(spacing: 12) {
                     if state == .denied {
                         Button(action: onOpenSettings) {
-                            Text("Open Settings")
+                            Text("permission.open_settings", tableName: "Permission")
                                 .font(.headline)
                                 .foregroundStyle(.black)
                                 .frame(maxWidth: .infinity)
@@ -244,8 +285,13 @@ struct PermissionExplanationScreen: View {
                                     ProgressView()
                                         .tint(.black)
                                 }
-                                Text(state == .requesting ? "Requesting Permissions…" : "Continue")
-                                    .font(.headline)
+
+                                Text(
+                                    state == .requesting
+                                    ? String(localized: "permission.requesting", table: "Permission")
+                                    : String(localized: "common.continue", table: "Permission")
+                                )
+                                .font(.headline)
                             }
                             .foregroundStyle(.black)
                             .frame(maxWidth: .infinity)
@@ -257,24 +303,13 @@ struct PermissionExplanationScreen: View {
                         .disabled(state == .requesting)
                     }
 
-                    
-                    Text("Your photos and videos remain private on your device. We don’t access, upload, or store them.")
+                    Text("permission.privacy.message", tableName: "Permission")
                         .font(.footnote)
                         .foregroundStyle(.white.opacity(0.6))
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, 24)
-//                    Button {
-//                        // Optional: later add "Learn more" / privacy link
-//                    } label: {
-//                        Text("Why we need these permissions")
-//                            .font(.footnote)
-//                            .foregroundStyle(.white.opacity(0.6))
-//                            .underline(false)
-//                    }
-//                    .padding(.bottom, 20)
                 }
             }
         }
     }
 }
-

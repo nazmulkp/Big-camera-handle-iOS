@@ -14,18 +14,19 @@ enum LUTPreset: String, CaseIterable, Identifiable {
     var id: String { rawValue }
 
     /// Name shown in the UI (safe, non-trademarked)
+    /// Name shown in the UI
     var displayName: String {
         switch self {
         case .none:
-            return "None"
+            return String(localized: "enum.lut.none", table: "ProControlsEnums")
         case .kodak:
-            return "Warm Classic"      // was "Kodak"
+            return String(localized: "enum.lut.warm_classic", table: "ProControlsEnums")
         case .fujifilm:
-            return "Soft Pastel"       // was "Fujifilm"
+            return String(localized: "enum.lut.soft_pastel", table: "ProControlsEnums")
         case .tealOrange:
-            return "Cinematic Teal"    // was "Teal / Orange"
+            return String(localized: "enum.lut.cinematic_teal", table: "ProControlsEnums")
         case .imported:
-            return "Imported"
+            return String(localized: "enum.lut.imported", table: "ProControlsEnums")
         }
     }
 

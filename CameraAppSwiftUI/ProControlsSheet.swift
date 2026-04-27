@@ -4,15 +4,14 @@ import SwiftUI
 import AVFoundation
 
 struct ProControlsSheet: View {
-    
+
     @ObservedObject var controller: CameraController
     @Binding var meterMode: MeterMode
     @Binding var isLeftHandedLayout: Bool
     @Binding var isZenMode: Bool
-    
+
     @Environment(\.dismiss) private var dismiss
-    
-    
+
     var batterySymbolName: String {
         let percent = controller.batteryStatusSummaryInt()
 
@@ -61,75 +60,75 @@ struct ProControlsSheet: View {
                     .background(.black.opacity(0.4))
                     .clipShape(Capsule())
                     .foregroundStyle(.white)
+
                     WhiteBalanceSection(controller: controller)
                     ExposureSection(controller: controller)
                     FocusSection(controller: controller)
-                    LensSection(controller: controller)      // 👈 NEW
+                    LensSection(controller: controller)
                     FormatSection(controller: controller)
                     VideoSection(controller: controller)
-                    LUTSection(controller: controller) 
+                    LUTSection(controller: controller)
                     MonitoringSection(controller: controller, meterMode: $meterMode)
-                    
-                    
+
                     Section {
                         Toggle(isOn: $isLeftHandedLayout) {
-                            Text("Left-handed layout")
+                            Text("pro.layout.left_handed", tableName: "ProControls")
                                 .font(.subheadline)
                                 .foregroundStyle(.white)
                         }
                     } header: {
-                        Text("Layout")
+                        Text("pro.layout.section", tableName: "ProControls")
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.7))
                     }
-                    
+
                     Section {
                         Toggle(isOn: $isZenMode) {
-                            Text("Zen Mode (Clean HUD)")
+                            Text("pro.hud.zen_mode", tableName: "ProControls")
                                 .font(.subheadline)
                                 .foregroundStyle(.white)
                         }
-                        Text("Hide all controls except shutter, readout, and zoom. Tap the screen to temporarily show the full HUD.")
+
+                        Text("pro.hud.zen_description", tableName: "ProControls")
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.7))
                             .fixedSize(horizontal: false, vertical: true)
                     } header: {
-                        Text("HUD")
+                        Text("pro.hud.section", tableName: "ProControls")
                             .font(.caption)
                             .foregroundStyle(.white.opacity(0.7))
                     }
                 }
                 .padding()
             }
-            .navigationTitle("Pro Controls")
+            .navigationTitle(String(localized: "pro.navigation.title", table: "ProControls"))
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
-                            // 🔴 New Reset button
-                            ToolbarItem(placement: .topBarLeading) {
-                                Button(role: .destructive) {
-                                    resetToDefaults()
-                                } label: {
-                                    Text("Reset")
-                                }
-                            }
-                            
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button("Done") { dismiss() }
-                            }
-                        }
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(role: .destructive) {
+                        resetToDefaults()
+                    } label: {
+                        Text("pro.toolbar.reset", tableName: "ProControls")
+                    }
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(String(localized: "pro.toolbar.done", table: "ProControls")) {
+                        dismiss()
+                    }
+                }
+            }
         }
     }
-    
+
     // MARK: - Reset all pro controls to defaults & close sheet
 
     private func resetToDefaults() {
-        // --- White Balance ---
         controller.whiteBalanceMode = .auto
         controller.tempSliderValue = 0.5
         controller.tintSliderValue = 0.5
         controller.setWhiteBalanceMode(.auto)
 
-        // --- Exposure ---
         controller.exposureMode = .auto
         controller.shutterSliderValue = 0.5
         controller.isoSliderValue = 0.5
@@ -138,15 +137,12 @@ struct ProControlsSheet: View {
         controller.autoISOMaxSliderValue = 1.0
         controller.setExposureMode(.auto)
 
-        // --- Focus ---
         controller.focusMode = .auto
         controller.focusSliderValue = 0.5
         controller.setFocusMode(.auto)
 
-        // --- Format ---
-        controller.photoFormat = .heif   // your default
+        controller.photoFormat = .heif
 
-        // --- Video ---
         controller.videoResolution = .res1080p
         controller.videoFrameRate = .fps30
         controller.videoCodec = .hevc
@@ -154,45 +150,38 @@ struct ProControlsSheet: View {
         controller.videoStabilizationEnabled = true
         controller.videoBitratePreset = .standard
 
-        // --- Monitoring / Meters ---
-        meterMode = .histogram          // typical default
+        meterMode = .histogram
         controller.audioGainDB = 0
         controller.setAudioMuted(false)
 
-        // --- Layout / HUD ---
         isLeftHandedLayout = false
         isZenMode = false
 
-        // --- Zoom (back to base) ---
         controller.zoomSliderValue = 0.0
         controller.applyZoomSettings()
 
-        // Re-apply settings to camera
         controller.applyExposureSettings()
         controller.applyEVSettings()
         controller.applyWhiteBalanceSettings()
         controller.applyFocusSettings()
         controller.applyVideoConfiguration()
 
-        // Close the sheet immediately
         dismiss()
     }
 }
 
-// MARK: - White balance section with Custom Segmented Control
+// MARK: - White Balance Section
 
 struct WhiteBalanceSection: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "White Balance")
+            SectionHeader(title: String(localized: "pro.white_balance.section", table: "ProControls"))
 
-            // Custom segmented control
             HStack(spacing: 0) {
                 ForEach(WhiteBalanceMode.allCases) { mode in
                     Button(action: {
-                        // Immediate update
                         controller.whiteBalanceMode = mode
                         controller.setWhiteBalanceMode(mode)
                     }) {
@@ -220,7 +209,7 @@ struct WhiteBalanceSection: View {
 
             HStack(spacing: 12) {
                 SettingSliderRow(
-                    title: "Temp",
+                    title: String(localized: "pro.white_balance.temp", table: "ProControls"),
                     value: Binding(
                         get: { controller.tempSliderValue },
                         set: { controller.updateTemperatureSlider($0) }
@@ -229,7 +218,7 @@ struct WhiteBalanceSection: View {
                 )
 
                 SettingSliderRow(
-                    title: "Tint",
+                    title: String(localized: "pro.white_balance.tint", table: "ProControls"),
                     value: Binding(
                         get: { controller.tintSliderValue },
                         set: { controller.updateTintSlider($0) }
@@ -262,20 +251,18 @@ struct WhiteBalanceSection: View {
     }
 }
 
-// MARK: - Exposure section with Custom Segmented Control
+// MARK: - Exposure Section
 
 struct ExposureSection: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Exposure")
+            SectionHeader(title: String(localized: "pro.exposure.section", table: "ProControls"))
 
-            // Custom segmented control for Exposure Mode
             HStack(spacing: 0) {
                 ForEach(ExposureControlMode.allCases) { mode in
                     Button(action: {
-                        // Immediate update
                         controller.exposureMode = mode
                         controller.setExposureMode(mode)
                     }) {
@@ -301,10 +288,9 @@ struct ExposureSection: View {
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
 
-            // Shutter / ISO
             HStack(spacing: 12) {
                 SettingSliderRow(
-                    title: "Shutter",
+                    title: String(localized: "pro.exposure.shutter", table: "ProControls"),
                     value: Binding(
                         get: { controller.shutterSliderValue },
                         set: { controller.updateShutterSlider($0) }
@@ -314,7 +300,7 @@ struct ExposureSection: View {
                 )
 
                 SettingSliderRow(
-                    title: "ISO",
+                    title: String(localized: "pro.exposure.iso", table: "ProControls"),
                     value: Binding(
                         get: { controller.isoSliderValue },
                         set: { controller.updateISOSlider($0) }
@@ -324,9 +310,8 @@ struct ExposureSection: View {
                 )
             }
 
-            // EV
             SettingSliderRow(
-                title: "EV Compensation",
+                title: String(localized: "pro.exposure.ev_compensation", table: "ProControls"),
                 value: Binding(
                     get: { controller.evSliderValue },
                     set: { controller.updateEVSlider($0) }
@@ -338,10 +323,9 @@ struct ExposureSection: View {
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.white.opacity(0.85))
 
-            // Auto ISO min/max
             HStack(spacing: 12) {
                 SettingSliderRow(
-                    title: "Auto ISO Min",
+                    title: String(localized: "pro.exposure.auto_iso_min", table: "ProControls"),
                     value: Binding(
                         get: { controller.autoISOMinSliderValue },
                         set: { controller.updateAutoISOMinSlider($0) }
@@ -350,7 +334,7 @@ struct ExposureSection: View {
                 )
 
                 SettingSliderRow(
-                    title: "Auto ISO Max",
+                    title: String(localized: "pro.exposure.auto_iso_max", table: "ProControls"),
                     value: Binding(
                         get: { controller.autoISOMaxSliderValue },
                         set: { controller.updateAutoISOMaxSlider($0) }
@@ -374,20 +358,18 @@ struct ExposureSection: View {
     }
 }
 
-// MARK: - Focus section with Custom Segmented Control
+// MARK: - Focus Section
 
 struct FocusSection: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Focus")
+            SectionHeader(title: String(localized: "pro.focus.section", table: "ProControls"))
 
-            // Custom segmented control for Focus Mode
             HStack(spacing: 0) {
                 ForEach(FocusControlMode.allCases) { mode in
                     Button(action: {
-                        // Immediate update
                         controller.focusMode = mode
                         controller.setFocusMode(mode)
                     }) {
@@ -414,7 +396,7 @@ struct FocusSection: View {
             )
 
             SettingSliderRow(
-                title: "Manual Focus",
+                title: String(localized: "pro.focus.manual", table: "ProControls"),
                 value: Binding(
                     get: { controller.focusSliderValue },
                     set: { controller.updateFocusSlider($0) }
@@ -429,16 +411,15 @@ struct FocusSection: View {
     }
 }
 
-// MARK: - Format section with Custom Segmented Control
+// MARK: - Format Section
 
 struct FormatSection: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Format")
+            SectionHeader(title: String(localized: "pro.format.section", table: "ProControls"))
 
-            // Custom segmented control for Photo Format
             HStack(spacing: 0) {
                 ForEach(PhotoFormat.allCases) { format in
                     let supported: Bool = {
@@ -451,14 +432,13 @@ struct FormatSection: View {
                     }()
 
                     Button(action: {
-                        // Check if format is supported before updating
                         guard supported else { return }
                         controller.photoFormat = format
                     }) {
                         HStack {
                             Text(format.shortLabel)
                             if !supported {
-                                Text("∙ N/A")
+                                Text("pro.format.not_available", tableName: "ProControls")
                                     .font(.caption2)
                             }
                         }
@@ -493,18 +473,18 @@ struct FormatSection: View {
     private func formatDescription(for format: PhotoFormat) -> String {
         switch format {
         case .jpeg:
-            return "JPEG • Maximum compatibility."
+            return String(localized: "pro.format.jpeg.description", table: "ProControls")
         case .heif:
-            return "HEIF • Smaller files, high quality."
+            return String(localized: "pro.format.heif.description", table: "ProControls")
         case .raw:
-            return "RAW • Maximum dynamic range for editing."
+            return String(localized: "pro.format.raw.description", table: "ProControls")
         case .proRAW:
-            return "ProRAW-style RAW capture (device dependent)."
+            return String(localized: "pro.format.proraw.description", table: "ProControls")
         }
     }
 }
 
-// MARK: - Monitoring section with Custom Segmented Control
+// MARK: - Monitoring Section
 
 struct MonitoringSection: View {
     @ObservedObject var controller: CameraController
@@ -512,13 +492,11 @@ struct MonitoringSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Monitoring")
+            SectionHeader(title: String(localized: "pro.monitoring.section", table: "ProControls"))
 
-            // Custom segmented control for Meter Mode
             HStack(spacing: 0) {
                 ForEach(MeterMode.allCases) { mode in
                     Button(action: {
-                        // Immediate update
                         meterMode = mode
                     }) {
                         Text(mode.label)
@@ -543,16 +521,22 @@ struct MonitoringSection: View {
                     .stroke(Color.white.opacity(0.2), lineWidth: 1)
             )
 
-            // Audio Gain + Mute
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("Audio Gain")
+                    Text("pro.monitoring.audio_gain", tableName: "ProControls")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.8))
+
                     Spacer()
-                    Text("\(Int(controller.audioGainDB.rounded())) dB")
-                        .font(.caption2.monospacedDigit())
-                        .foregroundStyle(.white.opacity(0.7))
+
+                    Text(
+                        String(
+                            format: String(localized: "pro.monitoring.audio_gain_value", table: "ProControls"),
+                            Int(controller.audioGainDB.rounded())
+                        )
+                    )
+                    .font(.caption2.monospacedDigit())
+                    .foregroundStyle(.white.opacity(0.7))
                 }
 
                 Slider(
@@ -568,7 +552,7 @@ struct MonitoringSection: View {
                     get: { controller.isAudioMuted },
                     set: { controller.setAudioMuted($0) }
                 )) {
-                    Text("Mute")
+                    Text("pro.monitoring.mute", tableName: "ProControls")
                         .font(.caption)
                         .foregroundStyle(.white.opacity(0.9))
                 }
@@ -578,21 +562,20 @@ struct MonitoringSection: View {
     }
 }
 
-// MARK: - Video section with Custom Segmented Controls
+// MARK: - Video Section
 
 struct VideoSection: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Video")
+            SectionHeader(title: String(localized: "pro.video.section", table: "ProControls"))
 
-            // Resolution - Custom segmented control
             VStack(alignment: .leading, spacing: 4) {
-                Text("Resolution")
+                Text("pro.video.resolution", tableName: "ProControls")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.7))
-                
+
                 HStack(spacing: 0) {
                     ForEach(VideoResolution.allCases) { resolution in
                         Button(action: {
@@ -622,14 +605,12 @@ struct VideoSection: View {
                 )
             }
 
-            // FPS + Stabilization
             VStack(alignment: .leading, spacing: 8) {
-                Text("Frame Rate")
+                Text("pro.video.frame_rate", tableName: "ProControls")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.7))
-                
+
                 HStack(spacing: 12) {
-                    // FPS - Custom segmented control
                     HStack(spacing: 0) {
                         ForEach(VideoFrameRate.allCases) { fps in
                             Button(action: {
@@ -658,31 +639,29 @@ struct VideoSection: View {
                             .stroke(Color.white.opacity(0.2), lineWidth: 1)
                     )
 
-                    // Stabilization Toggle
                     VStack {
                         Toggle(isOn: Binding(
                             get: { controller.videoStabilizationEnabled },
                             set: { controller.setVideoStabilizationEnabled($0) }
                         )) {
-                            Text("Stab")
+                            Text("pro.video.stab", tableName: "ProControls")
                                 .font(.caption2)
                         }
                         .toggleStyle(.switch)
                         .labelsHidden()
-                        
-                        Text("Stab")
+
+                        Text("pro.video.stab", tableName: "ProControls")
                             .font(.caption2)
                             .foregroundStyle(.white.opacity(0.7))
                     }
                 }
             }
 
-            // Codec - Custom segmented control
             VStack(alignment: .leading, spacing: 4) {
-                Text("Codec")
+                Text("pro.video.codec", tableName: "ProControls")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.7))
-                
+
                 HStack(spacing: 0) {
                     ForEach(VideoCodecPreset.allCases) { codec in
                         Button(action: {
@@ -712,12 +691,11 @@ struct VideoSection: View {
                 )
             }
 
-            // Color profile - Custom segmented control
             VStack(alignment: .leading, spacing: 4) {
-                Text("Color Profile")
+                Text("pro.video.color_profile", tableName: "ProControls")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.7))
-                
+
                 HStack(spacing: 0) {
                     ForEach(VideoColorProfile.allCases) { profile in
                         Button(action: {
@@ -747,12 +725,11 @@ struct VideoSection: View {
                 )
             }
 
-            // Bitrate - Custom segmented control
             VStack(alignment: .leading, spacing: 4) {
-                Text("Bitrate")
+                Text("pro.video.bitrate", tableName: "ProControls")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.7))
-                
+
                 HStack(spacing: 0) {
                     ForEach(VideoBitratePreset.allCases) { preset in
                         Button(action: {
@@ -791,7 +768,9 @@ struct VideoSection: View {
     private var videoSummary: String {
         let res  = controller.videoResolution.label
         let fps  = controller.videoFrameRate.label
-        let stab = controller.videoStabilizationEnabled ? "Stab On" : "Stab Off"
+        let stab = controller.videoStabilizationEnabled
+            ? String(localized: "pro.video.stab_on", table: "ProControls")
+            : String(localized: "pro.video.stab_off", table: "ProControls")
         let codec = controller.videoCodec.label
         let color = controller.videoColorProfile.label
         let bitrate = controller.videoBitratePreset.label
@@ -800,21 +779,21 @@ struct VideoSection: View {
     }
 }
 
+// MARK: - LUT Section
+
 struct LUTSection: View {
     @ObservedObject var controller: CameraController
     @State private var showImporter = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
-            SectionHeader(title: "Looks / LUTs")
+            SectionHeader(title: String(localized: "pro.lut.section", table: "ProControls"))
 
-            // Preset chips
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 8) {
                     ForEach(LUTPreset.allCases) { preset in
                         Button {
                             if preset == .imported {
-                                // If no imported LUT yet, prompt for one
                                 if controller.lutPreset == .imported && controller.previewImage != nil {
                                     controller.setLUTPreset(.imported)
                                 } else {
@@ -841,10 +820,9 @@ struct LUTSection: View {
                 }
             }
 
-            // Strength slider
             VStack(alignment: .leading, spacing: 4) {
                 HStack {
-                    Text("Strength")
+                    Text("pro.lut.strength", tableName: "ProControls")
                         .font(.caption2)
                         .foregroundStyle(.white.opacity(0.7))
                     Spacer()
@@ -862,16 +840,14 @@ struct LUTSection: View {
                 )
             }
 
-            // Apply to captured photos toggle
             Toggle(isOn: Binding(
                 get: { controller.applyLUTToCaptures },
                 set: { controller.applyLUTToCaptures = $0 }
             )) {
-                Text("Apply to captured photos")
+                Text("pro.lut.apply_to_captures", tableName: "ProControls")
                     .font(.caption)
                     .foregroundStyle(.white.opacity(0.9))
             }
-
         }
         .fileImporter(
             isPresented: $showImporter,
@@ -890,12 +866,14 @@ struct LUTSection: View {
     }
 }
 
+// MARK: - Lens Section
+
 struct LensSection: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            SectionHeader(title: "Lens")
+            SectionHeader(title: String(localized: "pro.lens.section", table: "ProControls"))
 
             HStack(spacing: 0) {
                 ForEach(controller.availableBackCameras) { lens in
@@ -918,7 +896,7 @@ struct LensSection: View {
                             )
                     }
                     .buttonStyle(PlainButtonStyle())
-                    .disabled(controller.isRecording)   // 🔒 disabled during recording
+                    .disabled(controller.isRecording)
                 }
             }
             .clipShape(RoundedRectangle(cornerRadius: 8))
@@ -928,12 +906,10 @@ struct LensSection: View {
             )
 
             if controller.isRecording {
-                Text("Stop recording to switch lenses.")
+                Text("pro.lens.stop_recording", tableName: "ProControls")
                     .font(.caption2)
                     .foregroundStyle(.white.opacity(0.6))
             }
         }
     }
 }
-
-

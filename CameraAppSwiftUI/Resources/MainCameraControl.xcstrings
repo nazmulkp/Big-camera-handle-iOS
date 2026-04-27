@@ -1,0 +1,203 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "main_camera.shutter.auto": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Shutter Auto" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "الغالق تلقائي" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Obturateur auto" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Verschluss auto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Otturatore auto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "シャッター自動" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "셔터 자동" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Obturador auto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Затвор авто" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "快门自动" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Obturador auto" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "快門自動" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Deklanşör otomatik" } }
+      }
+    },
+
+    "main_camera.iso.auto": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "ISO Auto" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "ISO تلقائي" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "ISO auto" } },
+        "de": { "stringUnit": { "state": "translated", "value": "ISO auto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "ISO auto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ISO自動" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "ISO 자동" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "ISO auto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "ISO авто" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "ISO 自动" } },
+        "es": { "stringUnit": { "state": "translated", "value": "ISO auto" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "ISO 自動" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "ISO otomatik" } }
+      }
+    },
+
+    "main_camera.wb.auto": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "WB Auto" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "WB تلقائي" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "WB auto" } },
+        "de": { "stringUnit": { "state": "translated", "value": "WB auto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "WB auto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "WB自動" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "WB 자동" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "WB auto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "WB авто" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "WB 自动" } },
+        "es": { "stringUnit": { "state": "translated", "value": "WB auto" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "WB 自動" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "WB otomatik" } }
+      }
+    },
+
+    "main_camera.wb.manual": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "WB %dK • Tint %@" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "WB %dK • الصبغة %@" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "WB %dK • Teinte %@" } },
+        "de": { "stringUnit": { "state": "translated", "value": "WB %dK • Farbton %@" } },
+        "it": { "stringUnit": { "state": "translated", "value": "WB %dK • Tinta %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "WB %dK • 色合い %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "WB %dK • 색조 %@" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "WB %dK • Matiz %@" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "WB %dK • Оттенок %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "WB %dK • 色调 %@" } },
+        "es": { "stringUnit": { "state": "translated", "value": "WB %dK • Tinte %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "WB %dK • 色調 %@" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "WB %dK • Ton %@" } }
+      }
+    },
+
+    "main_camera.focus.auto": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Focus Auto" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "التركيز تلقائي" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mise au point auto" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Fokus auto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Fuoco auto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォーカス自動" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "초점 자동" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Foco auto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Фокус авто" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "对焦自动" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enfoque auto" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "對焦自動" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Odak otomatik" } }
+      }
+    },
+
+    "main_camera.focus.manual": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Focus %.2f" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "التركيز %.2f" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Mise au point %.2f" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Fokus %.2f" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Fuoco %.2f" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "フォーカス %.2f" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "초점 %.2f" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Foco %.2f" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Фокус %.2f" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "对焦 %.2f" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Enfoque %.2f" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "對焦 %.2f" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Odak %.2f" } }
+      }
+    },
+
+    "main_camera.auto.short": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Auto" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "تلقائي" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Auto" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Auto" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Auto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "自動" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "자동" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Auto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Авто" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "自动" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Auto" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "自動" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Otomatik" } }
+      }
+    },
+
+    "main_camera.storage.unknown": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Storage: unknown" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "التخزين: غير معروف" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Stockage : inconnu" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Speicher: unbekannt" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Archivio: sconosciuto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ストレージ: 不明" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "저장 공간: 알 수 없음" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Armazenamento: desconhecido" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Память: неизвестно" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "存储：未知" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Almacenamiento: desconocido" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "儲存空間：未知" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Depolama: bilinmiyor" } }
+      }
+    },
+
+    "main_camera.storage.low": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Low storage" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ مساحة التخزين منخفضة" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Stockage faible" } },
+        "de": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Wenig Speicher" } },
+        "it": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Spazio ridotto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ ストレージ不足" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ 저장 공간 부족" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Pouco armazenamento" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Мало памяти" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ 存储空间不足" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Poco almacenamiento" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ 儲存空間不足" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "%@ ⚠️ Depolama az" } }
+      }
+    },
+
+    "main_camera.storage.free": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%@ free" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "%@ متاحة" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "%@ libres" } },
+        "de": { "stringUnit": { "state": "translated", "value": "%@ frei" } },
+        "it": { "stringUnit": { "state": "translated", "value": "%@ liberi" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%@ 空き" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%@ 여유" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "%@ livres" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "%@ свободно" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%@ 可用" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%@ libres" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%@ 可用" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "%@ boş" } }
+      }
+    },
+
+    "main_camera.battery.low": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Low Battery" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "%d%% ❗️البطارية منخفضة" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Batterie faible" } },
+        "de": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Batterie niedrig" } },
+        "it": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Batteria scarica" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "%d%% ❗️バッテリー残量低下" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "%d%% ❗️배터리 부족" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Bateria fraca" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Низкий заряд" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "%d%% ❗️电量低" } },
+        "es": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Batería baja" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "%d%% ❗️電量低" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "%d%% ❗️Düşük pil" } }
+      }
+    }
+  },
+  "version": "1.0"
+}

@@ -24,7 +24,7 @@ struct CameraRootView: View {
                 // Top bar with safe area consideration
                 if !isZenMode || zenHUDExpanded {
                     TopInfoBarView(controller: controller)
-                        .padding(.top, 8) // Reduced top padding
+                        .padding(.top, 8)
                 }
 
                 Spacer()
@@ -49,15 +49,15 @@ struct CameraRootView: View {
                         // Left side elements
                         VStack(alignment: .leading, spacing: 12) {
                             Spacer()
+
                             QuickActionsView(controller: controller)
-                             .padding(.leading, 16)
+                                .padding(.leading, 16)
+
                             if controller.mode != .photo {
                                 AudioLevelMetersView(controller: controller)
-                                    //.padding(.top, 8)
                             }
                         }
-                   
-                        .padding(.bottom, 180) // Increased to avoid bottom bar overlap
+                        .padding(.bottom, 180)
 
                         Spacer()
                     } else {
@@ -66,15 +66,15 @@ struct CameraRootView: View {
                         // Right side elements
                         VStack(alignment: .trailing, spacing: 12) {
                             Spacer()
+
                             QuickActionsView(controller: controller)
                                 .padding(.trailing, 16)
-                            if controller.mode != .photo{
+
+                            if controller.mode != .photo {
                                 AudioLevelMetersView(controller: controller)
-                                   /// .padding(.top, 8)
                             }
                         }
-                       // .padding(.trailing, 4)
-                        .padding(.bottom, 180) // Increased to avoid bottom bar overlap
+                        .padding(.bottom, 180)
                     }
                 }
             }
@@ -84,21 +84,25 @@ struct CameraRootView: View {
                 HStack {
                     if isLeftHandedLayout {
                         Spacer()
+
                         // Monitoring HUD on right for left-handed layout
                         VStack {
                             Spacer()
+
                             SmallMonitoringHUD(mode: meterMode, bins: controller.histogramBins)
                                 .padding(.trailing, 16)
-                                .padding(.bottom, 180) // Match side elements
+                                .padding(.bottom, 180)
                         }
                     } else {
                         // Monitoring HUD on left for right-handed layout
                         VStack {
                             Spacer()
+
                             SmallMonitoringHUD(mode: meterMode, bins: controller.histogramBins)
                                 .padding(.leading, 16)
-                                .padding(.bottom, 180) // Match side elements
+                                .padding(.bottom, 180)
                         }
+
                         Spacer()
                     }
                 }
@@ -107,9 +111,11 @@ struct CameraRootView: View {
         .contentShape(Rectangle())
         .onTapGesture {
             guard isZenMode else { return }
+
             withAnimation(.easeInOut(duration: 0.2)) {
                 zenHUDExpanded.toggle()
             }
+
             if zenHUDExpanded {
                 DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
                     withAnimation(.easeInOut(duration: 0.2)) {
@@ -130,13 +136,14 @@ struct CameraRootView: View {
             if let image = controller.lastCapturedImage {
                 ZStack {
                     Color.black.ignoresSafeArea()
+
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFit()
                         .ignoresSafeArea()
                 }
             } else {
-                Text("No recent capture")
+                Text("camera_root.no_recent_capture", tableName: "CameraRooot")
                     .padding()
             }
         }
@@ -155,13 +162,14 @@ struct CameraRootView: View {
     }
 
     // MARK: - Preview layer with tap-to-focus
+
     private var previewLayer: some View {
         GeometryReader { geo in
             ZStack {
                 CameraPreviewView(controller: controller)
                     .ignoresSafeArea()
 
-                // Timer countdown overlay (center)
+                // Timer countdown overlay
                 if controller.countdownRemaining > 0 {
                     Text("\(controller.countdownRemaining)")
                         .font(.system(size: 72, weight: .bold, design: .rounded))
@@ -177,7 +185,7 @@ struct CameraRootView: View {
                         startPoint: .top,
                         endPoint: .bottom
                     )
-                    .frame(height: 120) // Fixed height for top gradient
+                    .frame(height: 120)
                     
                     Spacer()
                     
@@ -187,7 +195,7 @@ struct CameraRootView: View {
                         startPoint: .top,
                         endPoint: .bottom
                     )
-                    .frame(height: 200) // Fixed height for bottom gradient
+                    .frame(height: 200)
                 }
                 .ignoresSafeArea()
                 
@@ -236,7 +244,8 @@ struct CameraRootView: View {
     }
 }
 
-// MARK: - Updated Minimal Bottom Controls with better spacing
+// MARK: - Minimal Bottom Controls
+
 struct MinimalBottomControlsView: View {
     @ObservedObject var controller: CameraController
     @Binding var showLastCapture: Bool
@@ -244,31 +253,45 @@ struct MinimalBottomControlsView: View {
     @Binding var isLeftHandedLayout: Bool
 
     var body: some View {
-        VStack(spacing: 12) { // Increased spacing
+        VStack(spacing: 12) {
             statusAndReadoutsRow
             ZoomControlBar(controller: controller)
             shutterRow
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 24) // Increased bottom padding
+        .padding(.bottom, 24)
         .background(
-            Color.black.opacity(0.4) // Slightly more opaque
+            Color.black.opacity(0.4)
                 .blur(radius: 20)
                 .ignoresSafeArea(edges: .bottom)
         )
     }
 
     private var statusAndReadoutsRow: some View {
-        HStack(spacing: 12) { // Increased spacing
-            // Status indicator
-            
+        HStack(spacing: 12) {
             let (statusColor, statusText): (Color, String) = {
                 if controller.mode == .video && controller.isRecording {
-                    return (.red, "REC \(controller.recordingDurationString())")
+                    let format = String(
+                        localized: "camera_root.status.recording",
+                        table: "CameraRooot"
+                    )
+
+                    return (
+                        .red,
+                        String(format: format, controller.recordingDurationString())
+                    )
                 } else if controller.isSessionRunning {
-                    return (.green, controller.mode == .video ? "Video Ready" : "Ready")
+                    return (
+                        .green,
+                        controller.mode == .video
+                        ? String(localized: "camera_root.status.video_ready", table: "CameraRooot")
+                        : String(localized: "camera_root.status.ready", table: "CameraRooot")
+                    )
                 } else {
-                    return (.yellow, "Starting…")
+                    return (
+                        .yellow,
+                        String(localized: "camera_root.status.starting", table: "CameraRooot")
+                    )
                 }
             }()
 
@@ -282,23 +305,10 @@ struct MinimalBottomControlsView: View {
                     .foregroundStyle(.white.opacity(0.9))
             }
 
-//            Spacer()
-//
-//            // Photo / Video toggle
-//            Picker("", selection: $mode) {
-//                Text("Photo").tag(CaptureMode.photo)
-//                Text("Video").tag(CaptureMode.video)
-//            }
-//            .pickerStyle(.segmented)
-//            .frame(width: 140) // Slightly wider
-//
-//            Spacer()
-
-            // Right-side readout
             Text(readoutLine)
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.white.opacity(0.9))
-                .fixedSize(horizontal: true, vertical: false) // Prevent text compression
+                .fixedSize(horizontal: true, vertical: false)
         }
     }
 
@@ -314,48 +324,51 @@ struct MinimalBottomControlsView: View {
     }
 
     private var shutterRow: some View {
-        HStack(spacing: 0) { // Increased spacing
+        HStack(spacing: 0) {
             if isLeftHandedLayout {
                 shutterButton
-                    .padding(.leading,20)
+                    .padding(.leading, 20)
+
                 modeToggleButton
-                    .padding(.horizontal,22)
+                    .padding(.horizontal, 22)
+
                 switchCamera
-                    .padding(.horizontal,22)
+                    .padding(.horizontal, 22)
+
                 Spacer()
                 
                 proControlsButton
-                    .padding(.horizontal,22)
+                    .padding(.horizontal, 22)
+
                 lastThumbnailButton
             } else {
-                
                 proControlsButton
-                // Camera switch button (front/back)
+
                 modeToggleButton
-                    .padding(.leading,22)
+                    .padding(.leading, 22)
+
                 Spacer()
+
                 shutterButton
+
                 Spacer()
+
                 switchCamera
-                    .padding(.trailing,22)
+                    .padding(.trailing, 22)
+
                 lastThumbnailButton
             }
         }
     }
     
-    
     private var modeToggleButton: some View {
         Button {
-            // Don’t allow mode changes while recording
             guard !controller.isRecording else { return }
 
             withAnimation(.easeInOut(duration: 0.2)) {
-                // Toggle between photo and video
                 controller.mode = (controller.mode == .photo) ? .video : .photo
             }
-            
         } label: {
-            // Icon shows the *other* mode (what will happen when tapped)
             let isVideoMode = (controller.mode == .video)
 
             Image(systemName: isVideoMode ? "camera.fill" : "video.fill")
@@ -371,9 +384,8 @@ struct MinimalBottomControlsView: View {
         }
         .disabled(controller.isRecording)
     }
-
     
-    private var switchCamera:some View {
+    private var switchCamera: some View {
         Button {
             if !controller.isRecording {
                 controller.switchCamera()
@@ -392,7 +404,6 @@ struct MinimalBottomControlsView: View {
         }
         .disabled(controller.isRecording)
     }
-    
 
     private var shutterButton: some View {
         Button {
@@ -472,12 +483,13 @@ struct MinimalBottomControlsView: View {
     }
 }
 
-// MARK: - Updated Quick Actions with better spacing
+// MARK: - Quick Actions
+
 struct QuickActionsView: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
-        VStack(spacing: 16) { // Increased spacing
+        VStack(spacing: 16) {
             // Flash
             Button {
                 controller.cycleFlashMode(isVideo: controller.mode == .video)
@@ -507,7 +519,7 @@ struct QuickActionsView: View {
                 QuickActionIcon(
                     systemImage: "square.grid.3x3",
                     isActive: controller.isGridEnabled,
-                    text: "Grid"
+                    text: String(localized: "camera_root.quick.grid", table: "CameraRooot")
                 )
             }
 
@@ -518,7 +530,7 @@ struct QuickActionsView: View {
                 QuickActionIcon(
                     systemImage: controller.isAEAFLocked ? "lock.fill" : "lock.open",
                     isActive: controller.isAEAFLocked,
-                    text: "Lock"
+                    text: String(localized: "camera_root.quick.lock", table: "CameraRooot")
                 )
             }
         }
@@ -526,14 +538,18 @@ struct QuickActionsView: View {
 
     private var timerLabel: String {
         switch controller.captureTimerSeconds {
-        case 3:  return "3s"
-        case 10: return "10s"
-        default: return "Off"
+        case 3:
+            return "3s"
+        case 10:
+            return "10s"
+        default:
+            return String(localized: "camera_root.timer.off", table: "CameraRooot")
         }
     }
 }
 
-// MARK: - Updated Audio Meters with better sizing
+// MARK: - Audio Meters
+
 struct AudioLevelMetersView: View {
     @ObservedObject var controller: CameraController
 
@@ -545,6 +561,7 @@ struct AudioLevelMetersView: View {
                 db: controller.audioDBLeft,
                 label: "L"
             )
+
             AudioMeterBar(
                 level: controller.audioLevelRight,
                 peakLevel: controller.audioPeakRight,
@@ -553,13 +570,14 @@ struct AudioLevelMetersView: View {
             )
         }
         .padding(4)
-        .background(Color.black.opacity(0.5)) // More opaque
+        .background(Color.black.opacity(0.5))
         .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
-        .frame(width: 80) // Fixed width for consistency
+        .frame(width: 80)
     }
 }
 
-// MARK: - Updated Small Monitoring HUD
+// MARK: - Small Monitoring HUD
+
 struct SmallMonitoringHUD: View {
     let mode: MeterMode
     let bins: [CGFloat]
@@ -571,22 +589,20 @@ struct SmallMonitoringHUD: View {
     }
 }
 
-// MARK: - Updated Zen Bottom Bar
+// MARK: - Zen Bottom Bar
+
 struct ZenBottomBarView: View {
     @ObservedObject var controller: CameraController
 
     var body: some View {
-        VStack(spacing: 12) { // Increased spacing
-            // Tiny exposure / video readout
+        VStack(spacing: 12) {
             Text(readoutLine)
                 .font(.caption2.monospacedDigit())
                 .foregroundStyle(.white.opacity(0.9))
                 .padding(.horizontal, 8)
 
-            // Same zoom bar as full mode
             ZoomControlBar(controller: controller)
 
-            // Big shutter, centered
             Button {
                 switch controller.mode {
                 case .photo:
@@ -623,7 +639,7 @@ struct ZenBottomBarView: View {
             }
         }
         .padding(.horizontal, 16)
-        .padding(.bottom, 24) // Increased bottom padding
+        .padding(.bottom, 24)
         .background(
             Color.black.opacity(0.3)
                 .blur(radius: 20)

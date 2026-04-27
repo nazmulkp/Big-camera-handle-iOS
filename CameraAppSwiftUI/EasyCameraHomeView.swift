@@ -6,10 +6,9 @@
 //
 
 import SwiftUI
-
-import SwiftUI
 import StoreKit
-
+import AVFAudio
+import AVFoundation
 
 // MARK: - Model
 
@@ -20,7 +19,6 @@ struct BlogPost: Identifiable, Codable {
     let readTime: Int
     let body: String
 }
-
 
 // MARK: - Store
 
@@ -40,6 +38,7 @@ final class BlogStore: ObservableObject {
         do {
             let data = try Data(contentsOf: url)
             let decoded = try JSONDecoder().decode([BlogPost].self, from: data)
+
             DispatchQueue.main.async {
                 self.posts = decoded
             }
@@ -49,18 +48,20 @@ final class BlogStore: ObservableObject {
     }
 }
 
+// MARK: - Home View
 
 struct EasyCameraHomeView: View {
     @StateObject private var blogStore = BlogStore()
+
     @State private var showCamera = false
-    @State private var showPermision = false
-    @State private var showSetting = false
+    @State private var showPermission = false
 
     var body: some View {
         NavigationStack {
             ZStack(alignment: .bottom) {
-                VStack{
+                VStack {
                     // MARK: - Blog List
+
                     ScrollView {
                         VStack(spacing: 12) {
                             ForEach(blogStore.posts) { post in
@@ -69,40 +70,48 @@ struct EasyCameraHomeView: View {
                                 } label: {
                                     BlogRow(post: post)
                                 }
-                                .buttonStyle(.plain)   // so it looks like a card, not a blue button
+                                .buttonStyle(.plain)
                             }
                             .padding(.horizontal, 16)
                             .padding(.top, 8)
                         }
                     }
-                    
+
+                    // MARK: - Bottom Camera Button
+
                     VStack(spacing: 8) {
                         Divider()
+
                         Button {
                             let cameraAuth = AVCaptureDevice.authorizationStatus(for: .video)
                             let micAuth = AVAudioSession.sharedInstance().recordPermission
 
                             if cameraAuth == .authorized && micAuth == .granted {
-                                //state = .granted
                                 showCamera = true
                             } else {
-                               // state = .needRequest
-                                showPermision = true
+                                showPermission = true
                             }
-                           
                         } label: {
                             HStack(spacing: 10) {
                                 Image(systemName: "camera.fill")
+                                    .accessibilityHidden(true)
+
                                 VStack(alignment: .leading, spacing: 2) {
-                                    Text("Open Pro Camera")
+                                    Text("home.open_camera.title", tableName: "Home")
                                         .font(.headline)
-                                    Text("Start shooting with Air Camera")
+                                        .multilineTextAlignment(.leading)
+
+                                    Text("home.open_camera.subtitle", tableName: "Home")
                                         .font(.caption)
                                         .opacity(0.8)
+                                        .multilineTextAlignment(.leading)
                                 }
+
                                 Spacer()
+
                                 Image(systemName: "arrow.up.left.and.arrow.down.right")
                                     .font(.subheadline)
+                                    .accessibilityHidden(true)
                             }
                             .padding(.vertical, 12)
                             .padding(.horizontal, 16)
@@ -117,49 +126,32 @@ struct EasyCameraHomeView: View {
                     .background(.ultraThinMaterial)
                 }
                 .listStyle(.plain)
-                .navigationTitle("Air Camera")
+                .navigationTitle(String(localized: "home.navigation.title", table: "Home"))
                 .toolbar {
-                    // Optional: small camera icon in the top bar
                     ToolbarItem(placement: .topBarTrailing) {
-//                        Button {
-//                            showSetting = true
-//                        } label: {
-                           // Image(systemName: "gearshape.fill")
-                      //  NavigationLink(value: <#T##P?#>, label: <#T##() -> Label#>)
-                        
                         NavigationLink {
                             SettingsView()
                         } label: {
                             Image(systemName: "gearshape.fill")
+                                .accessibilityLabel(
+                                    Text("home.settings.button.accessibility_label", tableName: "Home")
+                                )
                         }
-                       // }
                     }
                 }
-
-                // MARK: - Bottom Camera Button
-            
             }
         }
-//        .fullScreenCover(isPresented: $showSetting) {
-//            // This is your existing camera screen
-//            SettingsView()
-//              //  .ignoresSafeArea()
-//        }
         .fullScreenCover(isPresented: $showCamera) {
-            // This is your existing camera screen
             CameraRootView()
-              //  .ignoresSafeArea()
         }
-        .sheet(isPresented: $showPermision) {
-            // This is your existing camera screen
+        .sheet(isPresented: $showPermission) {
             PermissionGateView()
-              //  .ignoresSafeArea()
         }
         .onAppear {
             handleRating()
         }
     }
-    
+
     private func handleRating() {
         if TStorage.shouldRated == 4 {
             rateApp()
@@ -168,9 +160,11 @@ struct EasyCameraHomeView: View {
             TStorage.shouldRated += 1
         }
     }
-    
-    func rateApp() {
-        if let scene = UIApplication.shared.connectedScenes.first(where: { $0.activationState == .foregroundActive }) as? UIWindowScene {
+
+    private func rateApp() {
+        if let scene = UIApplication.shared.connectedScenes.first(where: {
+            $0.activationState == .foregroundActive
+        }) as? UIWindowScene {
             SKStoreReviewController.requestReview(in: scene)
         }
     }
@@ -187,11 +181,13 @@ struct BlogRow: View {
                 Text(post.title)
                     .font(.headline)
                     .foregroundStyle(.primary)
+                    .multilineTextAlignment(.leading)
 
                 Text(post.subtitle)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                     .lineLimit(2)
+                    .multilineTextAlignment(.leading)
             }
 
             Spacer()
@@ -199,6 +195,7 @@ struct BlogRow: View {
             Image(systemName: "chevron.right")
                 .font(.footnote)
                 .foregroundStyle(.secondary)
+                .accessibilityHidden(true)
         }
         .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -209,141 +206,96 @@ struct BlogRow: View {
     }
 }
 
-import SwiftUI
-import AVFAudio
-import AVFoundation
+// MARK: - Blog Detail View
 
 struct BlogDetailView: View {
     let post: BlogPost
+
     @Environment(\.dismiss) private var dismiss
     @State private var scrollOffset: CGFloat = 0
-    
+
     private var navigationBarOpacity: Double {
         let progress = max(0, min(1, scrollOffset / 100))
         return Double(progress)
     }
-    
+
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
                 VStack(alignment: .leading, spacing: 0) {
-//                    // Header Image
-//                    if let imageName = post.featuredImage {
-//                        Image(imageName)
-//                            .resizable()
-//                            .aspectRatio(contentMode: .fill)
-//                            .frame(height: geometry.size.width * 0.6)
-//                            .clipped()
-//                            .overlay(
-//                                LinearGradient(
-//                                    colors: [.clear, .black.opacity(0.3)],
-//                                    startPoint: .center,
-//                                    endPoint: .bottom
-//                                )
-//                            )
-//                    }
-                    
                     VStack(alignment: .leading, spacing: 24) {
-                        // Meta information
                         VStack(alignment: .leading, spacing: 16) {
-//                            HStack(spacing: 12) {
-//                                //PillView(text: post.category, color: .blue)
-//                                PillView(text: "\(post.readTime) min read", color: .gray)
-//                            }
-//                            
                             VStack(alignment: .leading, spacing: 12) {
                                 Text(post.title)
                                     .font(.largeTitle.bold())
                                     .foregroundColor(.primary)
                                     .fixedSize(horizontal: false, vertical: true)
-                                
+                                    .multilineTextAlignment(.leading)
+
                                 Text(post.subtitle)
                                     .font(.title3)
                                     .foregroundColor(.secondary)
                                     .fixedSize(horizontal: false, vertical: true)
+                                    .multilineTextAlignment(.leading)
                             }
-                            
-//                            HStack(spacing: 16) {
-//                                HStack(spacing: 6) {
-//                                    Image(systemName: "person.circle.fill")
-//                                        .foregroundColor(.secondary)
-//                                    Text(post.author)
-//                                        .font(.subheadline)
-//                                        .foregroundColor(.secondary)
-//                                }
-//                                
-//                                HStack(spacing: 6) {
-//                                    Image(systemName: "calendar")
-//                                        .foregroundColor(.secondary)
-//                                    Text(formatDate(post.publishDate))
-//                                        .font(.subheadline)
-//                                        .foregroundColor(.secondary)
-//                                }
-//                            }
                         }
                         .padding(.top, 24)
-                        
+
                         Divider()
                             .padding(.vertical, 8)
-                        
-                        // Content
+
                         EnhancedMarkdownText(text: post.body)
                             .padding(.bottom, 40)
                     }
                     .padding(.horizontal, 20)
+                    .frame(maxWidth: .infinity, alignment: .leading)
                     .background(
                         GeometryReader { contentGeometry in
                             Color.clear
                                 .onAppear {
-                                    updateScrollOffset(contentGeometry: contentGeometry, geometry: geometry)
+                                    updateScrollOffset(
+                                        contentGeometry: contentGeometry,
+                                        geometry: geometry
+                                    )
                                 }
                                 .onChange(of: contentGeometry.frame(in: .global).minY) { _ in
-                                    updateScrollOffset(contentGeometry: contentGeometry, geometry: geometry)
+                                    updateScrollOffset(
+                                        contentGeometry: contentGeometry,
+                                        geometry: geometry
+                                    )
                                 }
                         }
                     )
                 }
             }
-          //  .ignoresSafeArea(edges: .top)
             .navigationBarTitleDisplayMode(.inline)
-//            .toolbar {
-//                ToolbarItem(placement: .navigationBarTrailing) {
-//                    Button(action: {
-//                        // Share action
-//                    }) {
-//                        Image(systemName: "square.and.arrow.up")
-//                            .font(.system(size: 16, weight: .medium))
-//                    }
-//                }
-//            }
-//            .overlay(
-//                NavigationBarOverlay(
-//                    title: post.title,
-//                    opacity: navigationBarOpacity
-//                )
-//            )
         }
     }
-    
+
     private func updateScrollOffset(contentGeometry: GeometryProxy, geometry: GeometryProxy) {
         let yPosition = contentGeometry.frame(in: .global).minY
         let offset = max(0, -yPosition - geometry.safeAreaInsets.top)
         scrollOffset = offset
     }
-    
+
     private func formatDate(_ dateString: String) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateString) else { return dateString }
-        
+
+        guard let date = formatter.date(from: dateString) else {
+            return dateString
+        }
+
         formatter.dateStyle = .medium
         return formatter.string(from: date)
     }
 }
 
+// MARK: - Markdown Text
+
 struct EnhancedMarkdownText: View {
     let text: String
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             if let attributed = try? AttributedString(
@@ -355,216 +307,16 @@ struct EnhancedMarkdownText: View {
                     .lineSpacing(8)
                     .tracking(0.3)
                     .foregroundColor(.primary.opacity(0.9))
+                    .multilineTextAlignment(.leading)
             } else {
                 Text(text)
                     .font(.system(.body, design: .serif))
                     .lineSpacing(8)
                     .tracking(0.3)
                     .foregroundColor(.primary.opacity(0.9))
+                    .multilineTextAlignment(.leading)
             }
         }
+        .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
-
-// Alternative with more customization for different elements
-struct CustomMarkdownText: View {
-    let text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 24) {
-            // You could parse and render different markdown elements manually
-            // for even more control over styling
-            Text(text)
-                .font(.system(.body, design: .rounded))
-                .lineSpacing(10)
-                .tracking(0.2)
-                .foregroundColor(.primary.opacity(0.85))
-                .background(
-                    LinearGradient(
-                        colors: [.clear, .blue.opacity(0.03)],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        }
-    }
-}
-
-struct PremiumBodyText: View {
-    let text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 32) {
-            if let attributed = try? AttributedString(
-                markdown: text,
-                options: .init(interpretedSyntax: .full)
-            ) {
-                Text(attributed)
-                    .font(.system(.title3, design: .serif))
-                    .lineSpacing(14)
-                    .tracking(0.4)
-                    .foregroundColor(.primary.opacity(0.75))
-                    .blendMode(.multiply)
-            }
-        }
-        .padding(.vertical, 16)
-        .overlay(
-            // Reading guide lines
-            Rectangle()
-                .fill(
-                    LinearGradient(
-                        colors: [
-                            .clear,
-                            .blue.opacity(0.01),
-                            .blue.opacity(0.02),
-                            .blue.opacity(0.01),
-                            .clear
-                        ],
-                        startPoint: .top,
-                        endPoint: .bottom
-                    )
-                )
-        )
-        .background(
-            // Subtle texture background
-            RoundedRectangle(cornerRadius: 4)
-                .fill(Color.primary.opacity(0.02))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 4)
-                        .stroke(Color.primary.opacity(0.05), lineWidth: 0.5)
-                )
-                .padding(.horizontal, -8)
-        )
-    }
-}
-
-// Ultra luxury reading experience
-struct LuxuryBodyText: View {
-    let text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 36) {
-            if let attributed = try? AttributedString(markdown: text) {
-                Text(attributed)
-                    .font(.system(size: 19, weight: .regular, design: .serif))
-                    .lineSpacing(16)
-                    .tracking(0.5)
-                    .foregroundColor(.primary.opacity(0.7))
-                    .background(
-                        GeometryReader { geometry in
-                            // Reading line guides
-                            Path { path in
-                                let lineHeight: CGFloat = 14
-                                let numberOfLines = Int(geometry.size.height / lineHeight)
-                                
-                                for i in 0..<numberOfLines {
-                                    let y = CGFloat(i) * lineHeight + 8
-                                    path.move(to: CGPoint(x: 0, y: y))
-                                    path.addLine(to: CGPoint(x: geometry.size.width, y: y))
-                                }
-                            }
-                            .stroke(Color.orange.opacity(0.08), lineWidth: 0.5)
-                        }
-                    )
-            }
-        }
-        .padding(.vertical, 24)
-        .padding(.horizontal, 4)
-        .background(
-            // Book-like background
-            LinearGradient(
-                colors: [Color(.systemBackground), Color(.systemBackground).opacity(0.95)],
-                startPoint: .top,
-                endPoint: .bottom
-            )
-            .overlay(
-                // Subtle paper texture
-                Image(systemName: "line.3.crossed.swirl.circle.fill")
-                    .foregroundColor(.primary.opacity(0.02))
-                    .font(.system(size: 200))
-                    .rotationEffect(.degrees(30))
-                    .offset(x: 50, y: 100)
-            )
-        )
-    }
-}
-
-// Modern minimalist approach
-struct ModernBodyText: View {
-    let text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 28) {
-            if let attributed = try? AttributedString(markdown: text) {
-                Text(attributed)
-                    .font(.system(.body, design: .default))
-                    .lineSpacing(12)
-                    .tracking(0.3)
-                    .foregroundStyle(
-                        .linearGradient(
-                            colors: [
-                                .primary.opacity(0.9),
-                                .primary.opacity(0.8),
-                                .primary.opacity(0.7)
-                            ],
-                            startPoint: .top,
-                            endPoint: .bottom
-                        )
-                    )
-            }
-        }
-        .padding(.vertical, 20)
-        .background(
-            // Modern card background
-            RoundedRectangle(cornerRadius: 12)
-                .fill(.ultraThinMaterial)
-                .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
-                .padding(.horizontal, -16)
-        )
-    }
-}
-
-// Best overall - combines all the good elements
-struct UltimateBodyText: View {
-    let text: String
-    
-    var body: some View {
-        VStack(alignment: .leading, spacing: 30) {
-            if let attributed = try? AttributedString(markdown: text) {
-                Text(attributed)
-                    .font(.system(size: 18, weight: .regular, design: .serif))
-                    .lineSpacing(15)
-                    .tracking(0.45)
-                    .foregroundColor(.primary.opacity(0.75))
-                    .blendMode(.multiply)
-                    .background(
-                        // Reading focus highlight
-                        RoundedRectangle(cornerRadius: 2)
-                            .fill(Color.blue.opacity(0.03))
-                            .padding(.horizontal, -8)
-                            .padding(.vertical, -2)
-                    )
-            }
-        }
-        .padding(.vertical, 20)
-        .overlay(
-            // Top and bottom fade
-            VStack {
-                LinearGradient(
-                    colors: [Color(.systemBackground).opacity(0.9), .clear],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 20)
-                Spacer()
-                LinearGradient(
-                    colors: [.clear, Color(.systemBackground).opacity(0.9)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-                .frame(height: 20)
-            }
-        )
-    }
-}
-

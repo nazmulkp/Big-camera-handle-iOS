@@ -1,0 +1,149 @@
+{
+  "sourceLanguage": "en",
+  "strings": {
+    "camera_root.no_recent_capture": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "No recent capture" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "لا توجد لقطة حديثة" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Aucune capture récente" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Keine aktuelle Aufnahme" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Nessuna acquisizione recente" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "最近の撮影はありません" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "최근 촬영 없음" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Nenhuma captura recente" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Нет недавних снимков" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "没有最近的拍摄" } },
+        "es": { "stringUnit": { "state": "translated", "value": "No hay captura reciente" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "沒有最近的拍攝" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Son çekim yok" } }
+      }
+    },
+
+    "camera_root.status.recording": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "de": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "it": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "es": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "REC %@" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "REC %@" } }
+      }
+    },
+
+    "camera_root.status.video_ready": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Video Ready" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "الفيديو جاهز" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Vidéo prête" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Video bereit" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Video pronto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ビデオ準備完了" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "비디오 준비됨" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Vídeo pronto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Видео готово" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "视频已就绪" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Video listo" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "影片已就緒" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Video hazır" } }
+      }
+    },
+
+    "camera_root.status.ready": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Ready" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "جاهز" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Prêt" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Bereit" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Pronto" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "準備完了" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "준비됨" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Pronto" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Готово" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "就绪" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Listo" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "就緒" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Hazır" } }
+      }
+    },
+
+    "camera_root.status.starting": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Starting…" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "جارٍ البدء…" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Démarrage…" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Startet…" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Avvio…" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "起動中…" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "시작 중…" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Iniciando…" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Запуск…" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "正在启动…" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Iniciando…" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "正在啟動…" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Başlatılıyor…" } }
+      }
+    },
+
+    "camera_root.quick.grid": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Grid" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "الشبكة" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Grille" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Raster" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Griglia" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "グリッド" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "격자" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Grade" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Сетка" } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "网格" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Cuadrícula" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "格線" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Izgara" } }
+      }
+    },
+
+    "camera_root.quick.lock": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Lock" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "قفل" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Verrou" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Sperren" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Blocco" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "ロック" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "잠금" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Bloquear" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Блок." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "锁定" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Bloquear" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "鎖定" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Kilitle" } }
+      }
+    },
+
+    "camera_root.timer.off": {
+      "localizations": {
+        "en": { "stringUnit": { "state": "translated", "value": "Off" } },
+        "ar": { "stringUnit": { "state": "translated", "value": "إيقاف" } },
+        "fr": { "stringUnit": { "state": "translated", "value": "Désactivé" } },
+        "de": { "stringUnit": { "state": "translated", "value": "Aus" } },
+        "it": { "stringUnit": { "state": "translated", "value": "Disattivato" } },
+        "ja": { "stringUnit": { "state": "translated", "value": "オフ" } },
+        "ko": { "stringUnit": { "state": "translated", "value": "끔" } },
+        "pt-BR": { "stringUnit": { "state": "translated", "value": "Desligado" } },
+        "ru": { "stringUnit": { "state": "translated", "value": "Выкл." } },
+        "zh-Hans": { "stringUnit": { "state": "translated", "value": "关闭" } },
+        "es": { "stringUnit": { "state": "translated", "value": "Desactivado" } },
+        "zh-Hant": { "stringUnit": { "state": "translated", "value": "關閉" } },
+        "tr": { "stringUnit": { "state": "translated", "value": "Kapalı" } }
+      }
+    }
+  },
+  "version": "1.0"
+}
